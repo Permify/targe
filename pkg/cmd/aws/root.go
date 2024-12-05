@@ -8,6 +8,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type Root string
+
+const (
+	USERS    Root = "users"
+	POLICIES Root = "policies"
+)
+
+func (r Root) String() string {
+	return string(r)
+}
+
 // NewAwsCommand -
 func NewAwsCommand() *cobra.Command {
 	command := &cobra.Command{
@@ -36,7 +47,8 @@ func (m Aws) View() string {
 
 func aws() func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
-		p := tea.NewProgram(RootScreen(args[0]), tea.WithAltScreen())
+		//p := tea.NewProgram(RootScreen(args[0]), tea.WithAltScreen())
+		p := tea.NewProgram(RootScreen(Root(args[0])))
 
 		if _, err := p.Run(); err != nil {
 			fmt.Println("Error running program:", err)
@@ -46,10 +58,14 @@ func aws() func(cmd *cobra.Command, args []string) error {
 	}
 }
 
-func RootScreen(m string) Aws {
+func RootScreen(m Root) Aws {
 	var root tea.Model
 
-	if m == "users" {
+	switch m {
+	case USERS:
+		users := Users()
+		root = &users
+	default:
 		users := Users()
 		root = &users
 	}
@@ -59,6 +75,9 @@ func RootScreen(m string) Aws {
 	}
 }
 
-func Switch(model tea.Model) (tea.Model, tea.Cmd) {
-	return model, model.Init()
+func Switch(model tea.Model, width, height int) (tea.Model, tea.Cmd) {
+	return model.Update(tea.WindowSizeMsg{
+		Width:  width,
+		Height: height,
+	})
 }

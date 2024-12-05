@@ -60,7 +60,7 @@ func (m UsersModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			user := m.list.SelectedItem().(User)
 			actions := Actions(user)
-			return Switch(&actions)
+			return Switch(&actions, m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := usersStyle.GetFrameSize()
