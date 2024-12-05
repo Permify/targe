@@ -18,9 +18,8 @@ func (i Action) Description() string { return i.Desc }
 func (i Action) FilterValue() string { return i.Name }
 
 type ActionsModel struct {
-	user        User
-	list        list.Model
-	sharedState SharedState
+	user User
+	list list.Model
 }
 
 func Actions(user User) ActionsModel {
@@ -47,6 +46,10 @@ func (m ActionsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c":
 			return m, tea.Quit
+		case "enter":
+			// action := m.list.SelectedItem().(Action)
+			policies := Policies()
+			return Switch(&policies, m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := actionsStyle.GetFrameSize()

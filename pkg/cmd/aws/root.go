@@ -47,9 +47,7 @@ func (m Aws) View() string {
 
 func aws() func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
-		//p := tea.NewProgram(RootScreen(args[0]), tea.WithAltScreen())
-		p := tea.NewProgram(RootScreen(Root(args[0])))
-
+		p := tea.NewProgram(RootScreen(Root(args[0])), tea.WithAltScreen())
 		if _, err := p.Run(); err != nil {
 			fmt.Println("Error running program:", err)
 			os.Exit(1)
