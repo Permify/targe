@@ -18,10 +18,12 @@ func (i Policy) Description() string { return i.Arn }
 func (i Policy) FilterValue() string { return i.Arn }
 
 type PoliciesModel struct {
-	list list.Model
+	user   User
+	action string
+	list   list.Model
 }
 
-func Policies() PoliciesModel {
+func Policies(user User, action string) PoliciesModel {
 	var items []list.Item
 	policies := []Policy{
 		{
@@ -47,13 +49,15 @@ func Policies() PoliciesModel {
 	}
 
 	for _, policy := range policies {
-		items = append(items, User{
+		items = append(items, Policy{
 			Name: policy.Name,
 			Arn:  policy.Arn,
 		})
 	}
 
 	var m PoliciesModel
+	m.user = user
+	m.action = action
 	m.list.Title = "Policies"
 	m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)
 	return m
@@ -69,6 +73,10 @@ func (m PoliciesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c":
 			return m, tea.Quit
+		case "enter":
+			policy := m.list.SelectedItem().(Policy)
+			result := Result(m.user, policy, m.action)
+			return Switch(&result, m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := policiesStyle.GetFrameSize()
@@ -81,5 +89,5 @@ func (m PoliciesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m PoliciesModel) View() string {
-	return usersStyle.Render(m.list.View())
+	return policiesStyle.Render(m.list.View())
 }

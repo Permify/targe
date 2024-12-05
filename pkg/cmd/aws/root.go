@@ -47,7 +47,48 @@ func (m Aws) View() string {
 
 func aws() func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
-		p := tea.NewProgram(RootScreen(Root(args[0])), tea.WithAltScreen())
+		var model tea.Model
+
+		if args[0] == USERS.String() {
+			if len(args) > 1 {
+				if len(args) > 2 {
+					if len(args) > 3 {
+						// TODO: is it arn or name?
+						result := Result(User{
+							Name: args[1],
+							Arn:  "arn:aws:iam::123456789012:user/" + args[1],
+						}, Policy{
+							Name: args[3],
+							Arn:  "arn:aws:iam::aws:policy/" + args[3],
+						}, args[2])
+
+						model = &result
+					} else {
+						// TODO: is it arn or name?
+						policies := Policies(User{
+							Name: args[1],
+							Arn:  "arn:aws:iam::123456789012:user/" + args[1],
+						}, args[2])
+						model = &policies
+					}
+				} else {
+					// TODO: is it arn or name?
+					actions := Actions(User{
+						Name: args[1],
+						Arn:  "arn:aws:iam::123456789012:user/" + args[1],
+					})
+					model = &actions
+				}
+			} else {
+				users := Users()
+				model = &users
+			}
+		} else {
+			users := Users()
+			model = &users
+		}
+
+		p := tea.NewProgram(RootModel(model), tea.WithAltScreen())
 		if _, err := p.Run(); err != nil {
 			fmt.Println("Error running program:", err)
 			os.Exit(1)
@@ -56,24 +97,17 @@ func aws() func(cmd *cobra.Command, args []string) error {
 	}
 }
 
-func RootScreen(m Root) Aws {
-	var root tea.Model
-
-	switch m {
-	case USERS:
-		users := Users()
-		root = &users
-	default:
-		users := Users()
-		root = &users
-	}
-
+func RootModel(m tea.Model) Aws {
 	return Aws{
-		model: root,
+		model: m,
 	}
 }
 
 func Switch(model tea.Model, width, height int) (tea.Model, tea.Cmd) {
+	if width == 0 && height == 0 {
+		return model, model.Init()
+	}
+
 	return model.Update(tea.WindowSizeMsg{
 		Width:  width,
 		Height: height,
