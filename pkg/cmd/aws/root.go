@@ -6,13 +6,16 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
+
+	"github.com/Permify/kivo/pkg/cmd/aws/users"
 )
 
 type Root string
 
 const (
-	USERS    Root = "users"
-	POLICIES Root = "policies"
+	USERS  Root = "users"
+	GROUPS Root = "groups"
+	ROLES  Root = "roles"
 )
 
 func (r Root) String() string {
@@ -47,48 +50,48 @@ func (m Aws) View() string {
 
 func aws() func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
-		var model tea.Model
+		var state users.State
 
 		if args[0] == USERS.String() {
 			if len(args) > 1 {
 				if len(args) > 2 {
 					if len(args) > 3 {
 						// TODO: is it arn or name?
-						result := Result(User{
+
+						state.SetUser(&users.User{
 							Name: args[1],
 							Arn:  "arn:aws:iam::123456789012:user/" + args[1],
-						}, Policy{
+						})
+
+						state.SetPolicy(&users.Policy{
 							Name: args[3],
 							Arn:  "arn:aws:iam::aws:policy/" + args[3],
-						}, args[2])
+						})
 
-						model = &result
 					} else {
 						// TODO: is it arn or name?
-						policies := Policies(User{
+
+						state.SetUser(&users.User{
 							Name: args[1],
 							Arn:  "arn:aws:iam::123456789012:user/" + args[1],
-						}, args[2])
-						model = &policies
+						})
+
+						state.SetAction(&users.UserAction{
+							Name: args[2],
+							Desc: users.ReachableActions[args[2]].Desc,
+						})
 					}
 				} else {
 					// TODO: is it arn or name?
-					actions := Actions(User{
+					state.SetUser(&users.User{
 						Name: args[1],
 						Arn:  "arn:aws:iam::123456789012:user/" + args[1],
 					})
-					model = &actions
 				}
-			} else {
-				users := Users()
-				model = &users
 			}
-		} else {
-			users := Users()
-			model = &users
 		}
 
-		p := tea.NewProgram(RootModel(model), tea.WithAltScreen())
+		p := tea.NewProgram(RootModel(state.FindFlow()), tea.WithAltScreen())
 		if _, err := p.Run(); err != nil {
 			fmt.Println("Error running program:", err)
 			os.Exit(1)
@@ -101,15 +104,4 @@ func RootModel(m tea.Model) Aws {
 	return Aws{
 		model: m,
 	}
-}
-
-func Switch(model tea.Model, width, height int) (tea.Model, tea.Cmd) {
-	if width == 0 && height == 0 {
-		return model, model.Init()
-	}
-
-	return model.Update(tea.WindowSizeMsg{
-		Width:  width,
-		Height: height,
-	})
 }
