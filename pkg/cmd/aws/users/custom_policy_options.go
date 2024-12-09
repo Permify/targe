@@ -48,7 +48,7 @@ func (m CustomPolicyOptionListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			option := m.list.SelectedItem().(CustomPolicyOption)
 			m.state.SetPolicyOption(&option)
-			return Switch(m.state.FindFlow(), 0, 0)
+			return Switch(m.state.FindFlow(), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := userActionsStyle.GetFrameSize()

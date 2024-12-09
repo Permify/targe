@@ -38,11 +38,11 @@ func (m ResultModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m ResultModel) View() string {
 	return resultStyle.Render(fmt.Sprintf(
-		"Are you sure you want to proceed?\n\n"+
-			"User:   %s\n"+
-			"Action: %s\n"+
-			"Policy: %s\n\n"+
-			"Press [Y] to confirm or [N] to cancel.",
+		`Are you sure you want to proceed?
+			"User:   %s
+			"Action: %s
+			"Policy: %s
+			"Press [Y] to confirm or [N] to cancel.`,
 		m.state.GetUser().Name, m.state.GetAction().Name, m.state.GetPolicy().Name,
 	))
 }
