@@ -9,6 +9,7 @@ import (
 var customPolicyOptionsStyle = lipgloss.NewStyle().Margin(1, 2)
 
 type CustomPolicyOption struct {
+	Id   string
 	Name string
 	Desc string
 }
@@ -24,8 +25,8 @@ type CustomPolicyOptionListModel struct {
 
 func CustomPolicyOptionList(state *State) CustomPolicyOptionListModel {
 	items := []list.Item{
-		CustomPolicyOption{Name: ReachableCustomPolicyOptions[WithoutResourceSlug].Name, Desc: ReachableCustomPolicyOptions[WithoutResourceSlug].Desc},
-		CustomPolicyOption{Name: ReachableCustomPolicyOptions[WithResourceSlug].Name, Desc: ReachableCustomPolicyOptions[WithResourceSlug].Desc},
+		CustomPolicyOption{Id: WithoutResourceSlug, Name: ReachableCustomPolicyOptions[WithoutResourceSlug].Name, Desc: ReachableCustomPolicyOptions[WithoutResourceSlug].Desc},
+		CustomPolicyOption{Id: WithResourceSlug, Name: ReachableCustomPolicyOptions[WithResourceSlug].Name, Desc: ReachableCustomPolicyOptions[WithResourceSlug].Desc},
 	}
 	var m CustomPolicyOptionListModel
 	m.state = state

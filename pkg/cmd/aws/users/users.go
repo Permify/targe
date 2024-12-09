@@ -93,8 +93,9 @@ func users() func(cmd *cobra.Command, args []string) error {
 		}
 
 		if cfg.Action != "" {
-			state.SetAction(&UserAction{
-				Name: cfg.Action,
+			state.SetAction(&Action{
+				Id:   cfg.Action,
+				Name: ReachableActions[cfg.Action].Name,
 				Desc: ReachableActions[cfg.Action].Desc,
 			})
 		}

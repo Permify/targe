@@ -7,7 +7,7 @@ import (
 // State represents the application state.
 type State struct {
 	user         *User
-	action       *UserAction
+	action       *Action
 	policyOption *CustomPolicyOption
 	service      *Service
 	resource     *Resource
@@ -22,7 +22,7 @@ func (s *State) GetUser() *User {
 }
 
 // GetAction retrieves the action from the state.
-func (s *State) GetAction() *UserAction {
+func (s *State) GetAction() *Action {
 	return s.action
 }
 
@@ -54,7 +54,7 @@ func (s *State) SetUser(user *User) {
 }
 
 // SetAction updates the action in the state.
-func (s *State) SetAction(action *UserAction) {
+func (s *State) SetAction(action *Action) {
 	s.action = action
 }
 
@@ -88,7 +88,7 @@ const (
 )
 
 // ReachableActions Predefined list of actions with their names and descriptions
-var ReachableActions = map[string]UserAction{
+var ReachableActions = map[string]Action{
 	AttachPolicySlug: {
 		Name: "Attach Policy (attach_policy)",
 		Desc: "Assign a policy to the user.",
@@ -142,14 +142,14 @@ func (s *State) FindFlow() tea.Model {
 	}
 
 	// Handle specific action: AttachCustomPolicySlug
-	if s.action.Title() == ReachableActions[AttachCustomPolicySlug].Name {
+	if s.action.Id == AttachCustomPolicySlug {
 		// Handle case where a policy option is selected
 		if s.policyOption != nil {
-			switch s.policyOption.Name {
-			case ReachableCustomPolicyOptions[WithoutResourceSlug].Name:
+			switch s.policyOption.Id {
+			case WithoutResourceSlug:
 				return CreatePolicy(s)
 
-			case ReachableCustomPolicyOptions[WithResourceSlug].Name:
+			case WithResourceSlug:
 				// Handle case where service is defined
 				if s.service != nil {
 					return ResourceList(s)

@@ -8,14 +8,15 @@ import (
 
 var userActionsStyle = lipgloss.NewStyle().Margin(1, 2)
 
-type UserAction struct {
+type Action struct {
+	Id   string
 	Name string
 	Desc string
 }
 
-func (i UserAction) Title() string       { return i.Name }
-func (i UserAction) Description() string { return i.Desc }
-func (i UserAction) FilterValue() string { return i.Name }
+func (i Action) Title() string       { return i.Name }
+func (i Action) Description() string { return i.Desc }
+func (i Action) FilterValue() string { return i.Name }
 
 type ActionListModel struct {
 	state *State
@@ -24,11 +25,11 @@ type ActionListModel struct {
 
 func ActionList(state *State) ActionListModel {
 	items := []list.Item{
-		UserAction{Name: ReachableActions[AttachPolicySlug].Name, Desc: ReachableActions[AttachPolicySlug].Desc},
-		UserAction{Name: ReachableActions[DetachPolicySlug].Name, Desc: ReachableActions[DetachPolicySlug].Desc},
-		UserAction{Name: ReachableActions[AddToGroupSlug].Name, Desc: ReachableActions[AddToGroupSlug].Desc},
-		UserAction{Name: ReachableActions[RemoveFromGroupSlug].Name, Desc: ReachableActions[RemoveFromGroupSlug].Desc},
-		UserAction{Name: ReachableActions[AttachCustomPolicySlug].Name, Desc: ReachableActions[AttachCustomPolicySlug].Desc},
+		Action{Id: AttachPolicySlug, Name: ReachableActions[AttachPolicySlug].Name, Desc: ReachableActions[AttachPolicySlug].Desc},
+		Action{Id: DetachPolicySlug, Name: ReachableActions[DetachPolicySlug].Name, Desc: ReachableActions[DetachPolicySlug].Desc},
+		Action{Id: AddToGroupSlug, Name: ReachableActions[AddToGroupSlug].Name, Desc: ReachableActions[AddToGroupSlug].Desc},
+		Action{Id: RemoveFromGroupSlug, Name: ReachableActions[RemoveFromGroupSlug].Name, Desc: ReachableActions[RemoveFromGroupSlug].Desc},
+		Action{Id: AttachCustomPolicySlug, Name: ReachableActions[AttachCustomPolicySlug].Name, Desc: ReachableActions[AttachCustomPolicySlug].Desc},
 	}
 	var m ActionListModel
 	m.state = state
@@ -48,7 +49,7 @@ func (m ActionListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c":
 			return m, tea.Quit
 		case "enter":
-			action := m.list.SelectedItem().(UserAction)
+			action := m.list.SelectedItem().(Action)
 			m.state.SetAction(&action)
 			return Switch(m.state.FindFlow(), m.list.Width(), m.list.Height())
 		}
