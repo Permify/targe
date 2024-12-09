@@ -1,79 +1,143 @@
 package users
 
 import (
-	"github.com/charmbracelet/bubbles/list"
+	"fmt"
+	"os"
+
+	"github.com/spf13/viper"
+
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"github.com/spf13/cobra"
+
+	"github.com/Permify/kivo/internal/config"
 )
 
-var usersStyle = lipgloss.NewStyle().Margin(1, 2)
-
-type User struct {
-	Arn  string
-	Name string
+type Users struct {
+	model tea.Model
 }
 
-func (i User) Title() string       { return i.Name }
-func (i User) Description() string { return i.Arn }
-func (i User) FilterValue() string { return i.Arn }
-
-type UsersModel struct {
-	state *State
-	list  list.Model
+func (m Users) Init() tea.Cmd {
+	return m.model.Init() // rest methods are just wrappers for the model's methods
 }
 
-func Users(state *State) UsersModel {
-	var items []list.Item
-	users := []User{
-		{
-			Name: "Alice",
-			Arn:  "arn:aws:iam::123456789012:user/Alice",
-		},
-		{
-			Name: "Bob",
-			Arn:  "arn:aws:iam::123456789012:user/Bob",
-		},
+func (m Users) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	return m.model.Update(msg)
+}
+
+func (m Users) View() string {
+	return m.model.View()
+}
+
+// NewUsersCommand -
+func NewUsersCommand() *cobra.Command {
+	command := &cobra.Command{
+		Use:   "users",
+		Short: "",
+		RunE:  users(),
 	}
 
-	for _, user := range users {
-		items = append(items, User{
-			Name: user.Name,
-			Arn:  user.Arn,
-		})
+	conf := config.DefaultConfig()
+	f := command.Flags()
+	f.StringP("config", "c", "", "config file (default is $HOME/.kivo.yaml)")
+
+	f.String("user", conf.User, "user")
+	f.String("action", conf.Action, "action")
+	f.String("policy", conf.Policy, "policy")
+	f.String("resource", conf.Resource, "resource")
+	f.String("service", conf.Service, "service")
+	f.String("policy-option", conf.PolicyOption, "policy option")
+
+	// SilenceUsage is set to true to suppress usage when an error occurs
+	command.SilenceUsage = true
+
+	command.PreRun = func(cmd *cobra.Command, args []string) {
+		RegisterUsersFlags(f)
 	}
 
-	var m UsersModel
-	m.state = state
-	m.list.Title = "Users"
-	m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)
-	return m
+	return command
 }
 
-func (m UsersModel) Init() tea.Cmd {
-	return nil
-}
+func users() func(cmd *cobra.Command, args []string) error {
+	return func(cmd *cobra.Command, args []string) error {
+		var cfg *config.Config
+		var err error
+		cfgFile := viper.GetString("config.file")
+		if cfgFile != "" {
+			cfg, err = config.NewConfigWithFile(cfgFile)
+			if err != nil {
+				return fmt.Errorf("failed to create new config: %w", err)
+			}
 
-func (m UsersModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c":
-			return m, tea.Quit
-		case "enter":
-			user := m.list.SelectedItem().(User)
-			m.state.SetUser(&user)
-			return Switch(m.state.FindFlow(), m.list.Width(), m.list.Height())
+			if err = viper.Unmarshal(cfg); err != nil {
+				return fmt.Errorf("failed to unmarshal config: %w", err)
+			}
+		} else {
+			// Load configuration
+			cfg, err = config.NewConfig()
+			if err != nil {
+				return fmt.Errorf("failed to create new config: %w", err)
+			}
+
+			if err = viper.Unmarshal(cfg); err != nil {
+				return fmt.Errorf("failed to unmarshal config: %w", err)
+			}
 		}
-	case tea.WindowSizeMsg:
-		h, v := usersStyle.GetFrameSize()
-		m.list.SetSize(msg.Width-h, msg.Height-v)
-	}
 
-	var cmd tea.Cmd
-	m.list, cmd = m.list.Update(msg)
-	return m, cmd
+		var state State
+
+		if cfg.User != "" {
+			state.SetUser(&User{
+				Name: cfg.User,
+				Arn:  "arn:aws:iam::123456789012:user/" + cfg.User,
+			})
+		}
+
+		if cfg.Action != "" {
+			state.SetAction(&UserAction{
+				Name: cfg.Action,
+				Desc: ReachableActions[cfg.Action].Desc,
+			})
+		}
+
+		if cfg.Policy != "" {
+			state.SetPolicy(&Policy{
+				Name: cfg.Policy,
+				Arn:  "arn:aws:iam::aws:policy/" + cfg.Policy,
+			})
+		}
+
+		if cfg.Resource != "" {
+			state.SetResource(&Resource{
+				Name: cfg.Resource,
+				Arn:  "arn:aws:iam::aws:resource/" + cfg.Resource,
+			})
+		}
+
+		if cfg.Service != "" {
+			state.SetService(&Service{
+				Name: cfg.Service,
+			})
+		}
+
+		if cfg.PolicyOption != "" {
+			state.SetPolicyOption(&CustomPolicyOption{
+				Name: cfg.PolicyOption,
+				Desc: ReachableCustomPolicyOptions[cfg.PolicyOption].Desc,
+			})
+		}
+
+		p := tea.NewProgram(RootModel(state.FindFlow()), tea.WithAltScreen())
+		if _, err := p.Run(); err != nil {
+			fmt.Println("Error running program:", err)
+			os.Exit(1)
+		}
+
+		return nil
+	}
 }
 
-func (m UsersModel) View() string {
-	return usersStyle.Render(m.list.View())
+func RootModel(m tea.Model) Users {
+	return Users{
+		model: m,
+	}
 }

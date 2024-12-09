@@ -10,6 +10,7 @@ import (
 )
 
 // var createPolicyStyle = lipgloss.NewStyle().Margin(1, 2)
+
 type CreatePolicyModel struct {
 	state       *State
 	senderStyle lipgloss.Style

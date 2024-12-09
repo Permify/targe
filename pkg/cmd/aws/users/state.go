@@ -111,16 +111,34 @@ var ReachableActions = map[string]UserAction{
 	},
 }
 
+// Constants representing custom policy options and their slugs
+const (
+	WithoutResourceSlug = "without_resource"
+	WithResourceSlug    = "with_resource"
+)
+
+// ReachableCustomPolicyOptions Predefined list of custom policy options with their names and descriptions
+var ReachableCustomPolicyOptions = map[string]CustomPolicyOption{
+	WithoutResourceSlug: {
+		Name: "Without Resource (without_resource)",
+		Desc: "Applies globally without a resource.",
+	},
+	WithResourceSlug: {
+		Name: "With Resource (with_resource)",
+		Desc: "Scoped to a specific resource.",
+	},
+}
+
 // FindFlow determines the next step based on the current state.
 func (s *State) FindFlow() tea.Model {
 	// Handle case where user is not defined
 	if s.user == nil {
-		return Users(s)
+		return UserList(s)
 	}
 
 	// Handle case where action is not defined
 	if s.action == nil {
-		return Actions(s)
+		return ActionList(s)
 	}
 
 	// Handle specific action: AttachCustomPolicySlug
@@ -128,26 +146,26 @@ func (s *State) FindFlow() tea.Model {
 		// Handle case where a policy option is selected
 		if s.policyOption != nil {
 			switch s.policyOption.Name {
-			case "Policy Without Resource (policy_without_resource)":
+			case ReachableCustomPolicyOptions[WithoutResourceSlug].Name:
 				return CreatePolicy(s)
 
-			case "Policy With Resource (policy_with_resource)":
+			case ReachableCustomPolicyOptions[WithResourceSlug].Name:
 				// Handle case where service is defined
 				if s.service != nil {
-					return Resources(s)
+					return ResourceList(s)
 				}
 				// If service is not defined
-				return Services(s)
+				return ServiceList(s)
 			}
 		} else {
 			// If no policy option is selected
-			return CustomPolicyOptions(s)
+			return CustomPolicyOptionList(s)
 		}
 	}
 
 	// Handle case where no policy is selected
 	if s.policy == nil {
-		return Policies(s)
+		return PolicyList(s)
 	}
 
 	// Default fallback

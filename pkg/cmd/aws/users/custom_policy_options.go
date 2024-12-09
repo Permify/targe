@@ -17,28 +17,28 @@ func (i CustomPolicyOption) Title() string       { return i.Name }
 func (i CustomPolicyOption) Description() string { return i.Desc }
 func (i CustomPolicyOption) FilterValue() string { return i.Name }
 
-type CustomPolicyOptionModel struct {
+type CustomPolicyOptionListModel struct {
 	state *State
 	list  list.Model
 }
 
-func CustomPolicyOptions(state *State) CustomPolicyOptionModel {
+func CustomPolicyOptionList(state *State) CustomPolicyOptionListModel {
 	items := []list.Item{
-		CustomPolicyOption{Name: "Without Resource (without_resource)", Desc: "Applies globally without a resource."},
-		CustomPolicyOption{Name: "With Resource (with_resource)", Desc: "Scoped to a specific resource."},
+		CustomPolicyOption{Name: ReachableCustomPolicyOptions[WithoutResourceSlug].Name, Desc: ReachableCustomPolicyOptions[WithoutResourceSlug].Desc},
+		CustomPolicyOption{Name: ReachableCustomPolicyOptions[WithResourceSlug].Name, Desc: ReachableCustomPolicyOptions[WithResourceSlug].Desc},
 	}
-	var m CustomPolicyOptionModel
+	var m CustomPolicyOptionListModel
 	m.state = state
 	m.list.Title = "Custom Policy Options"
 	m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)
 	return m
 }
 
-func (m CustomPolicyOptionModel) Init() tea.Cmd {
+func (m CustomPolicyOptionListModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m CustomPolicyOptionModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m CustomPolicyOptionListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -59,6 +59,6 @@ func (m CustomPolicyOptionModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m CustomPolicyOptionModel) View() string {
+func (m CustomPolicyOptionListModel) View() string {
 	return customPolicyOptionsStyle.Render(m.list.View())
 }
