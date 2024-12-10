@@ -1,9 +1,13 @@
 package users
 
 import (
+	"log"
+
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/Permify/kivo/internal/requirements/aws"
 )
 
 var servicesStyle = lipgloss.NewStyle().Margin(1, 2)
@@ -23,42 +27,18 @@ type ServiceListModel struct {
 }
 
 func ServiceList(state *State) ServiceListModel {
-	var items []list.Item
-	services := []Service{
-		{
-			Name: "EC2",
-			Desc: "Amazon Elastic Compute Cloud",
-		},
-		{
-			Name: "S3",
-			Desc: "Amazon Simple Storage Service",
-		},
-		{
-			Name: "RDS",
-			Desc: "Amazon Relational Database Service",
-		},
-		{
-			Name: "IAM",
-			Desc: "Amazon Identity and Access Management",
-		},
-		{
-			Name: "Lambda",
-			Desc: "AWS Lambda",
-		},
-		{
-			Name: "API Gateway",
-			Desc: "Amazon API Gateway",
-		},
-		{
-			Name: "CloudFormation",
-			Desc: "AWS CloudFormation",
-		},
+	t := aws.Types{}
+	services, err := t.GetServices()
+	if err != nil {
+		log.Fatalf("failed to get services, %v", err)
 	}
+
+	var items []list.Item
 
 	for _, service := range services {
 		items = append(items, Service{
 			Name: service.Name,
-			Desc: service.Desc,
+			Desc: service.Description,
 		})
 	}
 

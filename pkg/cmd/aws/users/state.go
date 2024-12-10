@@ -150,6 +150,7 @@ func (s *State) FindFlow() tea.Model {
 				return CreatePolicy(s)
 
 			case WithResourceSlug:
+				// Handle case where resource is defined
 				if s.resource != nil {
 					return CreatePolicy(s)
 				}
