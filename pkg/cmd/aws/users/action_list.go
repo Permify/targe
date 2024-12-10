@@ -51,7 +51,7 @@ func (m ActionListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			action := m.list.SelectedItem().(Action)
 			m.state.SetAction(&action)
-			return Switch(m.state.FindFlow(), m.list.Width(), m.list.Height())
+			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := userActionsStyle.GetFrameSize()

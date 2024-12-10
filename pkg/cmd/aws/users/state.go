@@ -130,7 +130,7 @@ var ReachableCustomPolicyOptions = map[string]CustomPolicyOption{
 }
 
 // FindFlow determines the next step based on the current state.
-func (s *State) FindFlow() tea.Model {
+func (s *State) Next() tea.Model {
 	// Handle case where user is not defined
 	if s.user == nil {
 		return UserList(s)

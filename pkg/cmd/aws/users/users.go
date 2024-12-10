@@ -141,7 +141,7 @@ func users() func(cmd *cobra.Command, args []string) error {
 			})
 		}
 
-		p := tea.NewProgram(RootModel(state.FindFlow()), tea.WithAltScreen())
+		p := tea.NewProgram(RootModel(state.Next()), tea.WithAltScreen())
 		if _, err := p.Run(); err != nil {
 			fmt.Println("Error running program:", err)
 			os.Exit(1)

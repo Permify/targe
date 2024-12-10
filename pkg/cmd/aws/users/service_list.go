@@ -62,7 +62,7 @@ func (m ServiceListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			service := m.list.SelectedItem().(Service)
 			m.state.SetService(&service)
-			return Switch(m.state.FindFlow(), m.list.Width(), m.list.Height())
+			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := policiesStyle.GetFrameSize()

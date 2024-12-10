@@ -44,7 +44,7 @@ func NewRequirements() RequirementsManager {
 }
 
 func (m RequirementsManager) Init() tea.Cmd {
-	return tea.Batch(downloadAndInstall(m.requirements[m.index]), m.spinner.Tick)
+	return tea.Batch(install(m.requirements[m.index]), m.spinner.Tick)
 }
 
 func (m RequirementsManager) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -73,8 +73,8 @@ func (m RequirementsManager) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return m, tea.Batch(
 			progressCmd,
-			tea.Printf("%s %s", checkMark, pkg),         // print success message above our program
-			downloadAndInstall(m.requirements[m.index]), // download the next package
+			tea.Printf("%s %s", checkMark, pkg), // print success message above our program
+			install(m.requirements[m.index]),    // download the next package
 		)
 	case installErrorMsg:
 		// Update state for errors
@@ -127,7 +127,7 @@ type installErrorMsg struct {
 }
 
 // downloadAndInstall asynchronously downloads and installs a requirement
-func downloadAndInstall(requirement requirements.Requirement) tea.Cmd {
+func install(requirement requirements.Requirement) tea.Cmd {
 	return func() tea.Msg {
 		// Simulate installation
 		err := requirement.Install()

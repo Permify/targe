@@ -1,10 +1,6 @@
 package users
 
 import (
-	"context"
-
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/cloudcontrol"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -29,19 +25,21 @@ type UserListModel struct {
 func UserList(state *State) UserListModel {
 	var items []list.Item
 
-	ctx := context.TODO()
-	cfg, err := config.LoadDefaultConfig(ctx)
-	if err != nil {
-		panic(err)
+	users := []User{
+		{
+			Name: "Alice",
+			Arn:  "arn:aws:iam::123456789012:user/Alice",
+		},
+		{
+			Name: "Bob",
+			Arn:  "arn:aws:iam::123456789012:user/Bob",
+		},
 	}
-
-	client := cloudcontrol.NewFromConfig(cfg)
-	users, _ := ListResources(ctx, client, "AWS::IAM::User")
 
 	for _, user := range users {
 		items = append(items, User{
-			Name: user,
-			Arn:  user,
+			Name: user.Name,
+			Arn:  user.Arn,
 		})
 	}
 
@@ -65,7 +63,7 @@ func (m UserListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			user := m.list.SelectedItem().(User)
 			m.state.SetUser(&user)
-			return Switch(m.state.FindFlow(), m.list.Width(), m.list.Height())
+			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := usersStyle.GetFrameSize()

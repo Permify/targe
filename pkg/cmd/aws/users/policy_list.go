@@ -75,7 +75,7 @@ func (m PolicyListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			policy := m.list.SelectedItem().(Policy)
 			m.state.SetPolicy(&policy)
-			return Switch(m.state.FindFlow(), m.list.Width(), m.list.Height())
+			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := policiesStyle.GetFrameSize()

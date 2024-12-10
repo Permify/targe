@@ -6,6 +6,8 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/Permify/kivo/internal/aws"
 )
 
 var resourcesStyle = lipgloss.NewStyle().Margin(1, 2)
@@ -26,15 +28,10 @@ type ResourceListModel struct {
 
 func ResourceList(state *State) ResourceListModel {
 	var items []list.Item
-	resources := []Resource{
-		{
-			Name: "S3 Bucket",
-			Arn:  "arn:aws:s3:::my_bucket",
-		},
-		{
-			Name: "DynamoDB Table",
-			Arn:  "arn:aws:dynamodb:us-west-2:123456789012:table/my_table",
-		},
+
+	resources, err := aws.ListResources(state.GetService().Name)
+	if err != nil {
+		panic(err)
 	}
 
 	for _, resource := range resources {
@@ -62,9 +59,14 @@ func (m ResourceListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c":
 			return m, tea.Quit
 		case "enter":
-			resource := m.list.SelectedItem().(Resource)
-			m.state.SetResource(&resource)
-			return Switch(m.state.FindFlow(), m.list.Width(), m.list.Height())
+			if len(m.list.Items()) != 0 {
+				resource := m.list.SelectedItem().(Resource)
+				m.state.SetResource(&resource)
+			} else {
+				m.state.SetService(nil)
+				m.state.SetPolicyOption(nil)
+			}
+			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := policiesStyle.GetFrameSize()
@@ -77,5 +79,10 @@ func (m ResourceListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m ResourceListModel) View() string {
+	if len(m.list.Items()) == 0 {
+		return resourcesStyle.Render("No resources found.")
+	}
+
+	// Style for the resource list
 	return resourcesStyle.Render(m.list.View())
 }

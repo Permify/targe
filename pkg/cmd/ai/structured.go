@@ -231,5 +231,4 @@ func main() {
 		fmt.Println("CLI Command:", cliCommand)
 		fmt.Printf("Parsed Response: %+v\n", response)
 	}
-
 }
