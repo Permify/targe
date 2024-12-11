@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/davecgh/go-spew/spew"
-
 	"github.com/spf13/viper"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -38,12 +36,10 @@ func NewUsersCommand(cfg *config.Config) *cobra.Command {
 		RunE:  users(cfg),
 	}
 
-	spew.Dump(cfg.OpenaiApiKey)
-
 	f := command.Flags()
 
 	f.String("user", "", "user")
-	f.String("action", "", "action")
+	f.String("operation", "", "operation")
 	f.String("policy", "", "policy")
 	f.String("resource", "", "resource")
 	f.String("service", "", "service")
@@ -87,7 +83,7 @@ func users(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 
 		// get min coverage from viper
 		user := viper.GetString("user")
-		action := viper.GetString("action")
+		operation := viper.GetString("operation")
 		policy := viper.GetString("policy")
 		resource := viper.GetString("resource")
 		service := viper.GetString("service")
@@ -101,11 +97,11 @@ func users(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 			})
 		}
 
-		if action != "" {
-			state.SetAction(&Action{
-				Id:   action,
-				Name: ReachableActions[action].Name,
-				Desc: ReachableActions[action].Desc,
+		if operation != "" {
+			state.SetOperation(&Operation{
+				Id:   operation,
+				Name: ReachableOperations[operation].Name,
+				Desc: ReachableOperations[operation].Desc,
 			})
 		}
 
