@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/davecgh/go-spew/spew"
+
 	"github.com/spf13/viper"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 
 	"github.com/Permify/kivo/internal/config"
-	"github.com/Permify/kivo/pkg/cmd/common"
 )
 
 type Users struct {
@@ -30,48 +31,35 @@ func (m Users) View() string {
 }
 
 // NewUsersCommand -
-func NewUsersCommand() *cobra.Command {
+func NewUsersCommand(cfg *config.Config) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "users",
 		Short: "",
-		RunE:  users(),
+		RunE:  users(cfg),
 	}
 
-	conf := config.DefaultConfig()
-	f := command.Flags()
-	f.StringP("config", "c", "", "config file (default is $HOME/.kivo.yaml)")
+	spew.Dump(cfg.OpenaiApiKey)
 
-	f.String("user", conf.User, "user")
-	f.String("action", conf.Action, "action")
-	f.String("policy", conf.Policy, "policy")
-	f.String("resource", conf.Resource, "resource")
-	f.String("service", conf.Service, "service")
-	f.String("policy-option", conf.PolicyOption, "policy option")
+	f := command.Flags()
+
+	f.String("user", "", "user")
+	f.String("action", "", "action")
+	f.String("policy", "", "policy")
+	f.String("resource", "", "resource")
+	f.String("service", "", "service")
+	f.String("policy-option", "", "policy option")
 
 	// SilenceUsage is set to true to suppress usage when an error occurs
 	command.SilenceUsage = true
 
 	command.PreRun = func(cmd *cobra.Command, args []string) {
 		RegisterUsersFlags(f)
-
-		// Replace "requirements" with the actual path to your folder
-		requirementsPath := "requirements"
-
-		// Check if the requirements folder exists
-		if folderExists(requirementsPath) {
-			return
-		}
-
-		if _, err := tea.NewProgram(common.NewRequirements()).Run(); err != nil {
-			fmt.Println("Error running program:", err)
-			os.Exit(1)
-		}
 	}
 
 	return command
 }
 
-func users() func(cmd *cobra.Command, args []string) error {
+func users(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
 		var cfg *config.Config
 		var err error
@@ -97,47 +85,54 @@ func users() func(cmd *cobra.Command, args []string) error {
 			}
 		}
 
-		var state State
+		// get min coverage from viper
+		user := viper.GetString("user")
+		action := viper.GetString("action")
+		policy := viper.GetString("policy")
+		resource := viper.GetString("resource")
+		service := viper.GetString("service")
+		policyOption := viper.GetString("policy-option")
 
-		if cfg.User != "" {
+		state := &State{}
+		if user != "" {
 			state.SetUser(&User{
-				Name: cfg.User,
-				Arn:  "arn:aws:iam::123456789012:user/" + cfg.User,
+				Name: user,
+				Arn:  "arn:aws:iam::123456789012:user/" + user,
 			})
 		}
 
-		if cfg.Action != "" {
+		if action != "" {
 			state.SetAction(&Action{
-				Id:   cfg.Action,
-				Name: ReachableActions[cfg.Action].Name,
-				Desc: ReachableActions[cfg.Action].Desc,
+				Id:   action,
+				Name: ReachableActions[action].Name,
+				Desc: ReachableActions[action].Desc,
 			})
 		}
 
-		if cfg.Policy != "" {
+		if policy != "" {
 			state.SetPolicy(&Policy{
-				Name: cfg.Policy,
-				Arn:  "arn:aws:iam::aws:policy/" + cfg.Policy,
+				Name: policy,
+				Arn:  "arn:aws:iam::aws:policy/" + policy,
 			})
 		}
 
-		if cfg.Resource != "" {
+		if resource != "" {
 			state.SetResource(&Resource{
-				Name: cfg.Resource,
-				Arn:  "arn:aws:iam::aws:resource/" + cfg.Resource,
+				Name: resource,
+				Arn:  "arn:aws:iam::aws:resource/" + resource,
 			})
 		}
 
-		if cfg.Service != "" {
+		if service != "" {
 			state.SetService(&Service{
-				Name: cfg.Service,
+				Name: service,
 			})
 		}
 
-		if cfg.PolicyOption != "" {
+		if policyOption != "" {
 			state.SetPolicyOption(&CustomPolicyOption{
-				Name: cfg.PolicyOption,
-				Desc: ReachableCustomPolicyOptions[cfg.PolicyOption].Desc,
+				Name: policyOption,
+				Desc: ReachableCustomPolicyOptions[policyOption].Desc,
 			})
 		}
 
@@ -155,12 +150,4 @@ func RootModel(m tea.Model) Users {
 	return Users{
 		model: m,
 	}
-}
-
-func folderExists(folderPath string) bool {
-	info, err := os.Stat(folderPath)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return info.IsDir()
 }

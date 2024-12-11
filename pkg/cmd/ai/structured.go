@@ -1,4 +1,4 @@
-package main
+package ai
 
 import (
 	"bufio"
@@ -16,7 +16,7 @@ type GPTResponse struct {
 	Principal             map[string]string `json:"principal"`
 	RequestedResourceType string            `json:"requested_resource_type"`
 	RequestedResource     string            `json:"requested_resource"`
-	IsManagedPolicy       bool              `json:"isManagedPolicy"`
+	IsManagedPolicy       bool              `json:"is_managed_policy"`
 	Policy                string            `json:"policy"`
 	Error                 bool              `json:"error"`
 	Confidence            int               `json:"confidence"`
@@ -37,12 +37,11 @@ func callGPTWithSchema(apiKey, model, prompt string, temperature float64) (GPTRe
 					"type":        []string{"string", "null"},
 					"description": "The action type. If undetermined, return null.",
 					"enum": []string{
-						"attach_policy_to_user",
-						"attach_policy_to_group",
-						"attach_policy_to_role",
-						"create_policy",
-						"add_user_to_group",
-						"need_custom_policy",
+						"attach_policy",
+						"detach_policy",
+						"add_to_group",
+						"remove_from_group",
+						"attach_custom_policy",
 					},
 				},
 				"error": map[string]interface{}{
@@ -55,7 +54,7 @@ func callGPTWithSchema(apiKey, model, prompt string, temperature float64) (GPTRe
 					"properties": map[string]interface{}{
 						"type": map[string]interface{}{
 							"type": []string{"string", "null"},
-							"enum": []string{"user", "group", "role"},
+							"enum": []string{"users", "groups", "roles"},
 						},
 						"name": map[string]interface{}{
 							"type":        []string{"string", "null"},
@@ -73,7 +72,7 @@ func callGPTWithSchema(apiKey, model, prompt string, temperature float64) (GPTRe
 					"type":        []string{"string", "null"},
 					"description": "The name of the resource user wants access for.",
 				},
-				"isManagedPolicy": map[string]interface{}{
+				"is_managed_policy": map[string]interface{}{
 					"type":        "boolean",
 					"description": "Indicates if the provided policy is an exact AWS managed policy.",
 				},
@@ -187,7 +186,7 @@ func GenerateCLICommand(response GPTResponse) string {
 		}
 		if val, ok := response.Principal["name"]; ok {
 			if val != "" {
-				principalName = val
+				principalName = "--user " + val
 			}
 		}
 	}
@@ -197,8 +196,8 @@ func GenerateCLICommand(response GPTResponse) string {
 		policyName = response.Policy
 	}
 
-	action := response.Action
-	if action == "" {
+	action := "--action " + response.Action
+	if response.Action == "" {
 		action = placeholder
 	}
 
@@ -229,6 +228,6 @@ func main() {
 
 		cliCommand := GenerateCLICommand(response)
 		fmt.Println("CLI Command:", cliCommand)
-		fmt.Printf("Parsed Response: %+v\n", response)
+		// fmt.Printf("Parsed Response: %+v\n", response)
 	}
 }
