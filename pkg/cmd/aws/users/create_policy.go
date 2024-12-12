@@ -1,7 +1,7 @@
 package users
 
 import (
-	`encoding/json`
+	"encoding/json"
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/textarea"
@@ -102,7 +102,6 @@ func (m CreatePolicyModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m CreatePolicyModel) View() string {
-
 	if m.err != nil {
 		return createPolicyStyle.Render(m.err.Error())
 	}

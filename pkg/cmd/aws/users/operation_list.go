@@ -6,7 +6,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var userActionsStyle = lipgloss.NewStyle().Margin(1, 2)
+var userOperationsStyle = lipgloss.NewStyle().Margin(1, 2)
 
 type Operation struct {
 	Id   string
@@ -54,7 +54,7 @@ func (m ActionListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
-		h, v := userActionsStyle.GetFrameSize()
+		h, v := userOperationsStyle.GetFrameSize()
 		m.list.SetSize(msg.Width-h, msg.Height-v)
 	}
 
@@ -64,5 +64,5 @@ func (m ActionListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m ActionListModel) View() string {
-	return userActionsStyle.Render(m.list.View())
+	return userOperationsStyle.Render(m.list.View())
 }

@@ -57,30 +57,6 @@ func NewUsersCommand(cfg *config.Config) *cobra.Command {
 
 func users(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
-		var cfg *config.Config
-		var err error
-		cfgFile := viper.GetString("config.file")
-		if cfgFile != "" {
-			cfg, err = config.NewConfigWithFile(cfgFile)
-			if err != nil {
-				return fmt.Errorf("failed to create new config: %w", err)
-			}
-
-			if err = viper.Unmarshal(cfg); err != nil {
-				return fmt.Errorf("failed to unmarshal config: %w", err)
-			}
-		} else {
-			// Load configuration
-			cfg, err = config.NewConfig()
-			if err != nil {
-				return fmt.Errorf("failed to create new config: %w", err)
-			}
-
-			if err = viper.Unmarshal(cfg); err != nil {
-				return fmt.Errorf("failed to unmarshal config: %w", err)
-			}
-		}
-
 		// get min coverage from viper
 		user := viper.GetString("user")
 		operation := viper.GetString("operation")

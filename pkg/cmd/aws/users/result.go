@@ -1,8 +1,8 @@
 package users
 
 import (
-	`encoding/json`
-	`fmt`
+	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/huh"

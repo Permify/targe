@@ -4,7 +4,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// State represents the application state.
+// State represents the users flow state.
 type State struct {
 	user         *User
 	operation    *Operation
@@ -21,7 +21,7 @@ func (s *State) GetUser() *User {
 	return s.user
 }
 
-// GetAction retrieves the action from the state.
+// GetOperation retrieves the operation from the state.
 func (s *State) GetOperation() *Operation {
 	return s.operation
 }
@@ -29,11 +29,6 @@ func (s *State) GetOperation() *Operation {
 // GetPolicyOption retrieves the policy option from the state.
 func (s *State) GetPolicyOption() *CustomPolicyOption {
 	return s.policyOption
-}
-
-// GetPolicy retrieves the policy from the state.
-func (s *State) GetPolicy() *Policy {
-	return s.policy
 }
 
 // GetService retrieves the service from the state.
@@ -46,6 +41,11 @@ func (s *State) GetResource() *Resource {
 	return s.resource
 }
 
+// GetPolicy retrieves the policy from the state.
+func (s *State) GetPolicy() *Policy {
+	return s.policy
+}
+
 // Setters
 
 // SetUser updates the user in the state.
@@ -53,7 +53,7 @@ func (s *State) SetUser(user *User) {
 	s.user = user
 }
 
-// SetAction updates the action in the state.
+// SetOperation updates the action in the state.
 func (s *State) SetOperation(operation *Operation) {
 	s.operation = operation
 }
@@ -78,7 +78,7 @@ func (s *State) SetPolicy(policy *Policy) {
 	s.policy = policy
 }
 
-// Constants representing user actions and their slugs
+// Constants representing user operations and their slugs
 const (
 	AttachPolicySlug       = "attach_policy"
 	DetachPolicySlug       = "detach_policy"
@@ -87,7 +87,7 @@ const (
 	AttachCustomPolicySlug = "attach_custom_policy"
 )
 
-// ReachableActions Predefined list of actions with their names and descriptions
+// ReachableOperations Predefined list of actions with their names and descriptions
 var ReachableOperations = map[string]Operation{
 	AttachPolicySlug: {
 		Name: "Attach Policy (attach_policy)",

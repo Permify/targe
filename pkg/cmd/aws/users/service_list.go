@@ -64,7 +64,7 @@ func (m ServiceListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
-		h, v := policiesStyle.GetFrameSize()
+		h, v := servicesStyle.GetFrameSize()
 		m.list.SetSize(msg.Width-h, msg.Height-v)
 	}
 

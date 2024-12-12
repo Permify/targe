@@ -51,7 +51,7 @@ func (m CustomPolicyOptionListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
-		h, v := userActionsStyle.GetFrameSize()
+		h, v := customPolicyOptionsStyle.GetFrameSize()
 		m.list.SetSize(msg.Width-h, msg.Height-v)
 	}
 
