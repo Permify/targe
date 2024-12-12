@@ -1,11 +1,11 @@
 package aws
 
 import (
-	`encoding/json`
-	`fmt`
-	`io/ioutil`
-	`net/http`
-	`os`
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
 )
 
 type ManagedPolicies struct{}
@@ -21,7 +21,6 @@ func (p ManagedPolicies) GetFileName() string {
 func (p ManagedPolicies) Install() error {
 	policies, err := p.getManagedPolicies()
 	if err != nil {
-
 	}
 	return writeServicesToJSONFile(Folder, p.GetFileName(), policies)
 }

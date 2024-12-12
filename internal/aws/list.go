@@ -11,6 +11,8 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/service/iam"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -142,4 +144,162 @@ func extractResourceName(arn string) string {
 		return matches[1]
 	}
 	return arn // Fallback to the full ARN if no match
+}
+
+func ListGroupsForUser(ctx context.Context, cfg aws.Config, userName string) ([]string, error) {
+	client := iam.NewFromConfig(cfg)
+	paginator := iam.NewListGroupsForUserPaginator(client, &iam.ListGroupsForUserInput{
+		UserName: aws.String(userName),
+	})
+
+	var groupNames []string
+
+	for paginator.HasMorePages() {
+		output, err := paginator.NextPage(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("failed to list groups for user: %v", err)
+		}
+
+		for _, group := range output.Groups {
+			groupNames = append(groupNames, *group.GroupName)
+		}
+	}
+
+	return groupNames, nil
+}
+
+func ListGroupPolicies(ctx context.Context, cfg aws.Config, groupName string) ([]string, error) {
+	client := iam.NewFromConfig(cfg)
+	paginator := iam.NewListGroupPoliciesPaginator(client, &iam.ListGroupPoliciesInput{
+		GroupName: aws.String(groupName),
+	})
+
+	var inlinePolicies []string
+
+	for paginator.HasMorePages() {
+		output, err := paginator.NextPage(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("failed to list inline group policies: %v", err)
+		}
+
+		inlinePolicies = append(inlinePolicies, output.PolicyNames...)
+	}
+
+	return inlinePolicies, nil
+}
+
+func ListAttachedGroupPolicies(ctx context.Context, cfg aws.Config, groupName string) ([]string, error) {
+	client := iam.NewFromConfig(cfg)
+	paginator := iam.NewListAttachedGroupPoliciesPaginator(client, &iam.ListAttachedGroupPoliciesInput{
+		GroupName: aws.String(groupName),
+	})
+
+	var attachedPolicies []string
+
+	for paginator.HasMorePages() {
+		output, err := paginator.NextPage(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("failed to list attached group policies: %v", err)
+		}
+
+		for _, policy := range output.AttachedPolicies {
+			attachedPolicies = append(attachedPolicies, *policy.PolicyName)
+		}
+	}
+
+	return attachedPolicies, nil
+}
+
+func ListAllUserGroupPolicies(ctx context.Context, cfg aws.Config, userName string) ([]string, error) {
+	groupNames, err := ListGroupsForUser(ctx, cfg, userName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list groups for user %s: %v", userName, err)
+	}
+
+	var allUserGroupPolicies []string
+	for _, groupName := range groupNames {
+		inlinePolicies, err := ListGroupPolicies(ctx, cfg, groupName)
+		if err != nil {
+			return nil, fmt.Errorf("failed to list inline policies for group %s: %v", groupName, err)
+		}
+
+		allUserGroupPolicies = append(allUserGroupPolicies, inlinePolicies...)
+
+		attachedPolicies, err := ListAttachedGroupPolicies(ctx, cfg, groupName)
+		if err != nil {
+			return nil, fmt.Errorf("failed to list attached policies for group %s: %v", groupName, err)
+		}
+
+		allUserGroupPolicies = append(allUserGroupPolicies, attachedPolicies...)
+	}
+
+	return allUserGroupPolicies, nil
+}
+
+func ListAllUserPolicies(ctx context.Context, cfg aws.Config, userName string) ([]string, error) {
+	inlineUserPolicies, err := ListUserInlinePolicies(ctx, cfg, userName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list user policies: %v", err)
+	}
+	allPolicies := append([]string{}, inlineUserPolicies...)
+
+	attachedUserPolicies, err := ListAttachedUserPolicies(ctx, cfg, userName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list attached user policies: %v", err)
+	}
+	allPolicies = append(allPolicies, attachedUserPolicies...)
+
+	userGroupPolicies, err := ListAllUserGroupPolicies(ctx, cfg, userName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list user group policies: %v", err)
+	}
+
+	allPolicies = append(allPolicies, userGroupPolicies...)
+
+	return allPolicies, nil
+}
+
+func ListUsers(ctx context.Context, cfg aws.Config) (*iam.ListUsersOutput, error) {
+	client := iam.NewFromConfig(cfg)
+	input := &iam.ListUsersInput{}
+	return client.ListUsers(ctx, input)
+}
+
+func ListAttachedUserPolicies(ctx context.Context, cfg aws.Config, username string) ([]string, error) {
+	client := iam.NewFromConfig(cfg)
+	var names []string
+
+	// List the user's attached policies
+	input := &iam.ListAttachedUserPoliciesInput{
+		UserName: aws.String(username),
+	}
+
+	// Call AWS API to get the list of inline policies for the user
+	resp, err := client.ListAttachedUserPolicies(context.TODO(), input)
+	if err != nil {
+		return nil, fmt.Errorf("unable to list inline policies for user %s: %v", username, err)
+	}
+
+	for _, p := range resp.AttachedPolicies {
+		names = append(names, *p.PolicyName)
+	}
+
+	return names, nil
+}
+
+func ListUserInlinePolicies(ctx context.Context, cfg aws.Config, username string) ([]string, error) {
+	client := iam.NewFromConfig(cfg)
+
+	// List the user's attached policies
+	input := &iam.ListUserPoliciesInput{
+		UserName: aws.String(username),
+	}
+
+	// Call AWS API to get the list of inline policies for the user
+	resp, err := client.ListUserPolicies(context.TODO(), input)
+	if err != nil {
+		return nil, fmt.Errorf("unable to list inline policies for user %s: %v", username, err)
+	}
+
+	return resp.PolicyNames, nil
 }

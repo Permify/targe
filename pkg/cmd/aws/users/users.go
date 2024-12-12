@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/Permify/kivo/internal/config"
+	"github.com/Permify/kivo/pkg/cmd/common"
 )
 
 type Users struct {
@@ -58,6 +59,17 @@ func NewUsersCommand(cfg *config.Config) *cobra.Command {
 
 func users(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
+		// Replace "requirements" with the actual path to your folder
+		requirementsPath := "requirements"
+
+		// Check if the requirements folder exists
+		if !folderExists(requirementsPath) {
+			if _, err := tea.NewProgram(common.NewRequirements()).Run(); err != nil {
+				fmt.Println("Error running program:", err)
+				os.Exit(1)
+			}
+		}
+
 		// get min coverage from viper
 		user := viper.GetString("user")
 		operation := viper.GetString("operation")
@@ -127,4 +139,12 @@ func RootModel(m tea.Model) Users {
 	return Users{
 		model: m,
 	}
+}
+
+func folderExists(folderPath string) bool {
+	info, err := os.Stat(folderPath)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return info.IsDir()
 }
