@@ -1,6 +1,10 @@
 package users
 
 import (
+	"context"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -12,6 +16,7 @@ type State struct {
 	service      *Service
 	resource     *Resource
 	policy       *Policy
+	awsConfig    aws.Config
 }
 
 // Getters
@@ -192,4 +197,16 @@ func Switch(model tea.Model, width, height int) (tea.Model, tea.Cmd) {
 		Width:  width,
 		Height: height,
 	})
+}
+
+func NewState(ctx context.Context) (*State, error) {
+	// Load the AWS configuration
+	cfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &State{
+		awsConfig: cfg,
+	}, nil
 }

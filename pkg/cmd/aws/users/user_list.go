@@ -1,6 +1,8 @@
 package users
 
 import (
+	"context"
+
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -25,16 +27,7 @@ type UserListModel struct {
 func UserList(state *State) UserListModel {
 	var items []list.Item
 
-	users := []User{
-		{
-			Name: "Alice",
-			Arn:  "arn:aws:iam::123456789012:user/Alice",
-		},
-		{
-			Name: "Bob",
-			Arn:  "arn:aws:iam::123456789012:user/Bob",
-		},
-	}
+	users, _ := ListUsers(context.Background(), state.awsConfig, "AWS::IAM::User")
 
 	for _, user := range users {
 		items = append(items, User{

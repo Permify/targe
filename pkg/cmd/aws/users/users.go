@@ -1,6 +1,7 @@
 package users
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -89,7 +90,11 @@ func users(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 		service := viper.GetString("service")
 		policyOption := viper.GetString("policy-option")
 
-		state := &State{}
+		state, err := NewState(context.Background())
+		if err != nil {
+			return fmt.Errorf("failed to create new state: %w", err)
+		}
+
 		if user != "" {
 			state.SetUser(&User{
 				Name: user,
