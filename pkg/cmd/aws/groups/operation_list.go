@@ -1,4 +1,4 @@
-package users
+package groups
 
 import (
 	"github.com/charmbracelet/bubbles/list"
@@ -6,7 +6,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var userOperationsStyle = lipgloss.NewStyle().Margin(1, 2)
+var userActionsStyle = lipgloss.NewStyle().Margin(1, 2)
 
 type Operation struct {
 	Id   string
@@ -27,8 +27,6 @@ func OperationList(state *State) ActionListModel {
 	items := []list.Item{
 		Operation{Id: AttachPolicySlug, Name: ReachableOperations[AttachPolicySlug].Name, Desc: ReachableOperations[AttachPolicySlug].Desc},
 		Operation{Id: DetachPolicySlug, Name: ReachableOperations[DetachPolicySlug].Name, Desc: ReachableOperations[DetachPolicySlug].Desc},
-		Operation{Id: AddToGroupSlug, Name: ReachableOperations[AddToGroupSlug].Name, Desc: ReachableOperations[AddToGroupSlug].Desc},
-		Operation{Id: RemoveFromGroupSlug, Name: ReachableOperations[RemoveFromGroupSlug].Name, Desc: ReachableOperations[RemoveFromGroupSlug].Desc},
 		Operation{Id: AttachCustomPolicySlug, Name: ReachableOperations[AttachCustomPolicySlug].Name, Desc: ReachableOperations[AttachCustomPolicySlug].Desc},
 	}
 	var m ActionListModel
@@ -54,7 +52,7 @@ func (m ActionListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
-		h, v := userOperationsStyle.GetFrameSize()
+		h, v := userActionsStyle.GetFrameSize()
 		m.list.SetSize(msg.Width-h, msg.Height-v)
 	}
 
@@ -64,5 +62,5 @@ func (m ActionListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m ActionListModel) View() string {
-	return userOperationsStyle.Render(m.list.View())
+	return userActionsStyle.Render(m.list.View())
 }

@@ -1,29 +1,24 @@
-package users
+package roles
 
 import (
-	"context"
-
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// State represents the users flow state.
+// State represents the roles flow state.
 type State struct {
-	user         *User
+	role         *Role
 	operation    *Operation
 	policyOption *CustomPolicyOption
 	service      *Service
 	resource     *Resource
 	policy       *Policy
-	awsConfig    aws.Config
 }
 
 // Getters
 
-// GetUser retrieves the user from the state.
-func (s *State) GetUser() *User {
-	return s.user
+// GetRole retrieves the role from the state.
+func (s *State) GetRole() *Role {
+	return s.role
 }
 
 // GetOperation retrieves the operation from the state.
@@ -53,9 +48,9 @@ func (s *State) GetPolicy() *Policy {
 
 // Setters
 
-// SetUser updates the user in the state.
-func (s *State) SetUser(user *User) {
-	s.user = user
+// SetRole updates the role in the state.
+func (s *State) SetRole(role *Role) {
+	s.role = role
 }
 
 // SetOperation updates the action in the state.
@@ -83,12 +78,10 @@ func (s *State) SetPolicy(policy *Policy) {
 	s.policy = policy
 }
 
-// Constants representing user operations and their slugs
+// Constants representing role actions and their slugs
 const (
 	AttachPolicySlug       = "attach_policy"
 	DetachPolicySlug       = "detach_policy"
-	AddToGroupSlug         = "add_to_group"
-	RemoveFromGroupSlug    = "remove_from_group"
 	AttachCustomPolicySlug = "attach_custom_policy"
 )
 
@@ -96,19 +89,11 @@ const (
 var ReachableOperations = map[string]Operation{
 	AttachPolicySlug: {
 		Name: "Attach Policy (attach_policy)",
-		Desc: "Assign a policy to the user.",
+		Desc: "Assign a policy to the role.",
 	},
 	DetachPolicySlug: {
 		Name: "Detach Policy (detach_policy)",
-		Desc: "Remove a policy from the user.",
-	},
-	AddToGroupSlug: {
-		Name: "Add to Group (add_to_group)",
-		Desc: "Include the user in a group.",
-	},
-	RemoveFromGroupSlug: {
-		Name: "Remove from Group (remove_from_group)",
-		Desc: "Exclude the user from a group.",
+		Desc: "Remove a policy from the role.",
 	},
 	AttachCustomPolicySlug: {
 		Name: "Attach Custom Policy (attach_custom_policy)",
@@ -136,9 +121,9 @@ var ReachableCustomPolicyOptions = map[string]CustomPolicyOption{
 
 // FindFlow determines the next step based on the current state.
 func (s *State) Next() tea.Model {
-	// Handle case where user is not defined
-	if s.user == nil {
-		return UserList(s)
+	// Handle case where role is not defined
+	if s.role == nil {
+		return RoleList(s)
 	}
 
 	// Handle case where action is not defined
@@ -197,16 +182,4 @@ func Switch(model tea.Model, width, height int) (tea.Model, tea.Cmd) {
 		Width:  width,
 		Height: height,
 	})
-}
-
-func NewState(ctx context.Context) (*State, error) {
-	// Load the AWS configuration
-	cfg, err := config.LoadDefaultConfig(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return &State{
-		awsConfig: cfg,
-	}, nil
 }

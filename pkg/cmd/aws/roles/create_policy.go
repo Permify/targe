@@ -1,4 +1,4 @@
-package users
+package roles
 
 import (
 	"encoding/json"

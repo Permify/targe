@@ -1,4 +1,4 @@
-package users
+package roles
 
 import (
 	"github.com/charmbracelet/bubbles/list"
@@ -18,31 +18,29 @@ func (i Operation) Title() string       { return i.Name }
 func (i Operation) Description() string { return i.Desc }
 func (i Operation) FilterValue() string { return i.Name }
 
-type ActionListModel struct {
+type OperationListModel struct {
 	state *State
 	list  list.Model
 }
 
-func OperationList(state *State) ActionListModel {
+func OperationList(state *State) OperationListModel {
 	items := []list.Item{
 		Operation{Id: AttachPolicySlug, Name: ReachableOperations[AttachPolicySlug].Name, Desc: ReachableOperations[AttachPolicySlug].Desc},
 		Operation{Id: DetachPolicySlug, Name: ReachableOperations[DetachPolicySlug].Name, Desc: ReachableOperations[DetachPolicySlug].Desc},
-		Operation{Id: AddToGroupSlug, Name: ReachableOperations[AddToGroupSlug].Name, Desc: ReachableOperations[AddToGroupSlug].Desc},
-		Operation{Id: RemoveFromGroupSlug, Name: ReachableOperations[RemoveFromGroupSlug].Name, Desc: ReachableOperations[RemoveFromGroupSlug].Desc},
 		Operation{Id: AttachCustomPolicySlug, Name: ReachableOperations[AttachCustomPolicySlug].Name, Desc: ReachableOperations[AttachCustomPolicySlug].Desc},
 	}
-	var m ActionListModel
+	var m OperationListModel
 	m.state = state
-	m.list.Title = "Actions"
+	m.list.Title = "Operations"
 	m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)
 	return m
 }
 
-func (m ActionListModel) Init() tea.Cmd {
+func (m OperationListModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m ActionListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m OperationListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -63,6 +61,6 @@ func (m ActionListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m ActionListModel) View() string {
+func (m OperationListModel) View() string {
 	return userOperationsStyle.Render(m.list.View())
 }

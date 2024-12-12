@@ -1,4 +1,4 @@
-package users
+package groups
 
 import (
 	"github.com/charmbracelet/bubbles/list"

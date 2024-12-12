@@ -1,4 +1,4 @@
-package users
+package roles
 
 import (
 	"encoding/json"
@@ -136,8 +136,8 @@ func (m ResultModel) View() string {
 
 		var rows [][]string
 
-		if m.state.user != nil {
-			rows = append(rows, []string{"User", m.state.user.Name, m.state.user.Arn})
+		if m.state.role != nil {
+			rows = append(rows, []string{"Role", m.state.role.Name, m.state.role.Arn})
 		}
 
 		if m.state.operation != nil {
