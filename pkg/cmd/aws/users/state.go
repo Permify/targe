@@ -143,6 +143,11 @@ func (s *State) Next() tea.Model {
 
 	// Handle specific action: AttachCustomPolicySlug
 	if s.operation.Id == AttachCustomPolicySlug {
+
+		if s.policy != nil {
+			return Result(s)
+		}
+
 		// Handle case where a policy option is selected
 		if s.policyOption != nil {
 			switch s.policyOption.Id {

@@ -1,6 +1,7 @@
 package users
 
 import (
+	`encoding/json`
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/textarea"
@@ -9,13 +10,14 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// var createPolicyStyle = lipgloss.NewStyle().Margin(1, 2)
+var createPolicyStyle = lipgloss.NewStyle().Margin(1, 2)
 
 type CreatePolicyModel struct {
 	state       *State
 	senderStyle lipgloss.Style
 	viewport    viewport.Model
 	textarea    textarea.Model
+	err         error
 }
 
 func CreatePolicy(state *State) CreatePolicyModel {
@@ -62,28 +64,37 @@ func (m CreatePolicyModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyCtrlC, tea.KeyEsc:
-			fmt.Println(m.textarea.Value())
+		switch msg.String() {
+		case "ctrl+c":
 			return m, tea.Quit
-		case tea.KeyEnter:
+		case "enter":
 
-			// m.textarea.Value()
+			if m.state.policy != nil {
+				return Switch(m.state.Next(), 0, 0)
+			} else {
+				jsonStr := `{
+		"Version": "2012-10-17",
+		"Statement": [
+			{
+				"Effect": "Allow",
+				"Action": "s3:*",
+				"Resource": "*"
+			}
+		]
+	}`
 
-			m.viewport.SetContent(`
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "s3:*",
-            "Resource": "*"
-        }
-    ]
-}
-			`)
-			m.textarea.Reset()
-			m.viewport.GotoBottom()
+				m.viewport.SetContent(jsonStr)
+				m.textarea.Reset()
+				m.viewport.GotoBottom()
+
+				var result map[string]interface{}
+				m.err = json.Unmarshal([]byte(jsonStr), &result)
+				m.state.SetPolicy(&Policy{
+					Arn:      "new",
+					Name:     "New",
+					Document: result,
+				})
+			}
 		}
 	}
 
@@ -91,6 +102,11 @@ func (m CreatePolicyModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m CreatePolicyModel) View() string {
+
+	if m.err != nil {
+		return createPolicyStyle.Render(m.err.Error())
+	}
+
 	return fmt.Sprintf(
 		"%s\n\n%s",
 		m.viewport.View(),

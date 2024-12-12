@@ -1,6 +1,8 @@
 package users
 
 import (
+	`encoding/json`
+	`fmt`
 	"strings"
 
 	"github.com/charmbracelet/huh"
@@ -14,7 +16,7 @@ const maxWidth = 100
 
 var (
 	red   = lipgloss.AdaptiveColor{Light: "#FE5F86", Dark: "#FE5F86"}
-	blue  = lipgloss.AdaptiveColor{Light: "#66A6FF", Dark: "#66A6FF"}
+	blue  = lipgloss.Color("212")
 	green = lipgloss.AdaptiveColor{Light: "#02BA84", Dark: "#02BF87"}
 )
 
@@ -142,8 +144,26 @@ func (m ResultModel) View() string {
 			rows = append(rows, []string{"Operation", m.state.operation.Name, m.state.operation.Desc})
 		}
 
+		if m.state.service != nil {
+			rows = append(rows, []string{"Service", m.state.service.Name, m.state.service.Desc})
+		}
+
+		if m.state.resource != nil {
+			rows = append(rows, []string{"Resource", m.state.resource.Name, m.state.resource.Arn})
+		}
+
 		if m.state.policy != nil {
-			rows = append(rows, []string{"Policy", m.state.policy.Name, m.state.policy.Arn})
+			if len(m.state.policy.Document) > 0 {
+				// Marshal with indent
+				indentedJSON, err := json.MarshalIndent(m.state.policy.Document, "", "  ")
+				if err != nil {
+					fmt.Println("Error:", err)
+				}
+
+				rows = append(rows, []string{"Policy", m.state.policy.Name, string(indentedJSON)})
+			} else {
+				rows = append(rows, []string{"Policy", m.state.policy.Name, m.state.policy.Arn})
+			}
 		}
 
 		t := table.New().
