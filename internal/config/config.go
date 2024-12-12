@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/spf13/viper"
@@ -10,12 +11,7 @@ import (
 
 type (
 	Config struct {
-		User         string `mapstructure:"user"`
-		Action       string `mapstructure:"action"`
-		Policy       string `mapstructure:"policy"`
-		PolicyOption string `mapstructure:"policy_option"`
-		Service      string `mapstructure:"service"`
-		Resource     string `mapstructure:"resource"`
+		OpenaiApiKey string `mapstructure:"openai_api_key"`
 	}
 )
 
@@ -28,21 +24,32 @@ func NewConfig() (*Config, error) {
 
 	// Set the name and type of the config file to be read
 	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
+	viper.SetConfigType("toml")
 
 	// Add the path where the config file is located
-	viper.AddConfigPath("./config")
+	configPath := os.ExpandEnv("$HOME/.kivo/")
+	viper.AddConfigPath(configPath)
+
+	// Ensure the directory exists
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		if err := os.MkdirAll(configPath, 0o755); err != nil {
+			return nil, fmt.Errorf("failed to create config directory: %w", err)
+		}
+	}
 
 	// Read the config file
 	err := viper.ReadInConfig()
-	// If there's an error during reading the config file
 	if err != nil {
-		// Check if the error is because of the config file not being found
-		if ok := errors.As(err, &viper.ConfigFileNotFoundError{}); !ok {
-			// If it's not a "file not found" error, return the error with a message
+		// If the error is due to the file not being found, create a new one
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			filePath := filepath.Join(configPath, "config.toml")
+			if err := writeDefaultConfig(filePath, cfg); err != nil {
+				return nil, fmt.Errorf("failed to create config file: %w", err)
+			}
+		} else {
+			// If it's a different error, return it
 			return nil, fmt.Errorf("failed to load server config: %w", err)
 		}
-		// If it's a "file not found" error, the code will continue and use the default config
 	}
 
 	// Unmarshal the configuration data into the Config struct
@@ -64,7 +71,7 @@ func NewConfigWithFile(dir string) (*Config, error) {
 
 	viper.SetConfigFile(dir)
 
-	err := isYAML(dir)
+	err := isTOML(dir)
 	if err != nil {
 		return nil, err
 	}
@@ -95,22 +102,32 @@ func NewConfigWithFile(dir string) (*Config, error) {
 	return cfg, nil
 }
 
+func writeDefaultConfig(filePath string, cfg *Config) error {
+	// Use viper to write the default configuration to a file
+	viper.Set("openai_api_key", cfg.OpenaiApiKey)
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	if err := viper.WriteConfigAs(filePath); err != nil {
+		return fmt.Errorf("failed to write default config: %w", err)
+	}
+	return nil
+}
+
 // DefaultConfig - Creates default config.
 func DefaultConfig() *Config {
 	return &Config{
-		User:         "",
-		Action:       "",
-		Policy:       "",
-		PolicyOption: "",
-		Service:      "",
-		Resource:     "",
+		OpenaiApiKey: "",
 	}
 }
 
-func isYAML(file string) error {
+func isTOML(file string) error {
 	ext := filepath.Ext(file)
-	if ext != ".yaml" {
-		return errors.New("file is not yaml")
+	if ext != ".toml" {
+		return errors.New("file is not toml")
 	}
 	return nil
 }

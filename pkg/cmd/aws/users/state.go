@@ -7,7 +7,7 @@ import (
 // State represents the application state.
 type State struct {
 	user         *User
-	action       *Action
+	operation    *Operation
 	policyOption *CustomPolicyOption
 	service      *Service
 	resource     *Resource
@@ -22,8 +22,8 @@ func (s *State) GetUser() *User {
 }
 
 // GetAction retrieves the action from the state.
-func (s *State) GetAction() *Action {
-	return s.action
+func (s *State) GetOperation() *Operation {
+	return s.operation
 }
 
 // GetPolicyOption retrieves the policy option from the state.
@@ -54,8 +54,8 @@ func (s *State) SetUser(user *User) {
 }
 
 // SetAction updates the action in the state.
-func (s *State) SetAction(action *Action) {
-	s.action = action
+func (s *State) SetOperation(operation *Operation) {
+	s.operation = operation
 }
 
 // SetPolicyOption updates the policy option in the state.
@@ -88,7 +88,7 @@ const (
 )
 
 // ReachableActions Predefined list of actions with their names and descriptions
-var ReachableActions = map[string]Action{
+var ReachableOperations = map[string]Operation{
 	AttachPolicySlug: {
 		Name: "Attach Policy (attach_policy)",
 		Desc: "Assign a policy to the user.",
@@ -137,12 +137,17 @@ func (s *State) Next() tea.Model {
 	}
 
 	// Handle case where action is not defined
-	if s.action == nil {
-		return ActionList(s)
+	if s.operation == nil {
+		return OperationList(s)
 	}
 
 	// Handle specific action: AttachCustomPolicySlug
-	if s.action.Id == AttachCustomPolicySlug {
+	if s.operation.Id == AttachCustomPolicySlug {
+
+		if s.policy != nil {
+			return Result(s)
+		}
+
 		// Handle case where a policy option is selected
 		if s.policyOption != nil {
 			switch s.policyOption.Id {

@@ -24,15 +24,13 @@ func (i Resource) FilterValue() string { return i.Arn }
 type ResourceListModel struct {
 	state *State
 	list  list.Model
+	err   error
 }
 
 func ResourceList(state *State) ResourceListModel {
 	var items []list.Item
 
 	resources, err := aws.ListResources(state.GetService().Name)
-	if err != nil {
-		panic(err)
-	}
 
 	for _, resource := range resources {
 		items = append(items, Resource{
@@ -42,6 +40,7 @@ func ResourceList(state *State) ResourceListModel {
 	}
 
 	var m ResourceListModel
+	m.err = err
 	m.state = state
 	m.list.Title = fmt.Sprintf("Resources for %s", state.GetService().Title())
 	m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)
@@ -79,6 +78,10 @@ func (m ResourceListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m ResourceListModel) View() string {
+	if m.err != nil {
+		return resourcesStyle.Render(m.err.Error())
+	}
+
 	if len(m.list.Items()) == 0 {
 		return resourcesStyle.Render("No resources found.")
 	}
