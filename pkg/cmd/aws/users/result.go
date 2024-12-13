@@ -144,6 +144,10 @@ func (m ResultModel) View() string {
 			rows = append(rows, []string{"Operation", m.state.operation.Name, m.state.operation.Desc})
 		}
 
+		if m.state.group != nil {
+			rows = append(rows, []string{"Group", m.state.group.Name, m.state.group.Arn})
+		}
+
 		if m.state.service != nil {
 			rows = append(rows, []string{"Service", m.state.service.Name, m.state.service.Desc})
 		}

@@ -8,7 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	internal_aws "github.com/Permify/kivo/internal/aws"
+	internalaws "github.com/Permify/kivo/internal/aws"
 	"github.com/Permify/kivo/internal/requirements/aws"
 )
 
@@ -22,7 +22,7 @@ type Policy struct {
 
 func (i Policy) Title() string       { return i.Name }
 func (i Policy) Description() string { return i.Arn }
-func (i Policy) FilterValue() string { return i.Arn }
+func (i Policy) FilterValue() string { return i.Name }
 
 type PolicyListModel struct {
 	state *State
@@ -40,7 +40,7 @@ func PolicyList(state *State) PolicyListModel {
 	mp := aws.ManagedPolicies{}
 	managedPolicies, err := mp.GetPolicies()
 
-	attachedPolicies, err := internal_aws.ListAttachedUserPolicies(context.Background(), state.awsConfig, state.user.Name)
+	attachedPolicies, err := internalaws.ListAttachedUserPolicies(context.Background(), state.awsConfig, state.user.Name)
 	m.err = err
 
 	switch state.operation.Id {
@@ -65,7 +65,7 @@ func PolicyList(state *State) PolicyListModel {
 		}
 
 	case DetachPolicySlug:
-		inlinePolicies, err := internal_aws.ListUserInlinePolicies(context.Background(), state.awsConfig, state.user.Name)
+		inlinePolicies, err := internalaws.ListUserInlinePolicies(context.Background(), state.awsConfig, state.user.Name)
 		m.err = err
 
 		for _, name := range inlinePolicies {

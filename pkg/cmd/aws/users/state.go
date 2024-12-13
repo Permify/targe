@@ -12,6 +12,7 @@ import (
 type State struct {
 	user         *User
 	operation    *Operation
+	group        *Group
 	policyOption *CustomPolicyOption
 	service      *Service
 	resource     *Resource
@@ -29,6 +30,11 @@ func (s *State) GetUser() *User {
 // GetOperation retrieves the operation from the state.
 func (s *State) GetOperation() *Operation {
 	return s.operation
+}
+
+// GetGroup retrieves the group from the state.
+func (s *State) GetGroup() *Group {
+	return s.group
 }
 
 // GetPolicyOption retrieves the policy option from the state.
@@ -61,6 +67,11 @@ func (s *State) SetUser(user *User) {
 // SetOperation updates the action in the state.
 func (s *State) SetOperation(operation *Operation) {
 	s.operation = operation
+}
+
+// SetGroup updates the group in the state.
+func (s *State) SetGroup(group *Group) {
+	s.group = group
 }
 
 // SetPolicyOption updates the policy option in the state.
@@ -144,6 +155,14 @@ func (s *State) Next() tea.Model {
 	// Handle case where action is not defined
 	if s.operation == nil {
 		return OperationList(s)
+	}
+
+	if s.operation.Id == AddToGroupSlug || s.operation.Id == RemoveFromGroupSlug {
+		// Handle case where group is not defined
+		if s.group == nil {
+			return GroupList(s)
+		}
+		return Result(s)
 	}
 
 	// Handle specific action: AttachCustomPolicySlug
