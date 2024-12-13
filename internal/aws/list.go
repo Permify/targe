@@ -218,6 +218,12 @@ func ListGroups(ctx context.Context, cfg aws.Config) (*iam.ListGroupsOutput, err
 	return client.ListGroups(ctx, input)
 }
 
+func ListRoles(ctx context.Context, cfg aws.Config) (*iam.ListRolesOutput, error) {
+	client := iam.NewFromConfig(cfg)
+	input := &iam.ListRolesInput{}
+	return client.ListRoles(ctx, input)
+}
+
 func ListGroupPolicies(ctx context.Context, cfg aws.Config, groupName string) ([]string, error) {
 	client := iam.NewFromConfig(cfg)
 	paginator := iam.NewListGroupPoliciesPaginator(client, &iam.ListGroupPoliciesInput{

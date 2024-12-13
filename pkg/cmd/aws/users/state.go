@@ -1,10 +1,7 @@
 package users
 
 import (
-	"context"
-
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -218,14 +215,8 @@ func Switch(model tea.Model, width, height int) (tea.Model, tea.Cmd) {
 	})
 }
 
-func NewState(ctx context.Context) (*State, error) {
-	// Load the AWS configuration
-	cfg, err := config.LoadDefaultConfig(ctx)
-	if err != nil {
-		return nil, err
-	}
-
+func NewState(c aws.Config) (*State, error) {
 	return &State{
-		awsConfig: cfg,
+		awsConfig: c,
 	}, nil
 }
