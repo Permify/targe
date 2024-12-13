@@ -404,6 +404,10 @@
   "description": "Resource Type definition for AWS::Batch::ComputeEnvironment"
  },
  {
+  "name": "AWS::Batch::JobDefinition",
+  "description": "Resource Type definition for AWS::Batch::JobDefinition"
+ },
+ {
   "name": "AWS::Batch::JobQueue",
   "description": "Resource Type definition for AWS::Batch::JobQueue"
  },
@@ -861,7 +865,7 @@
  },
  {
   "name": "AWS::Connect::Rule",
-  "description": "Resource Type definition for AWS:Connect::Rule"
+  "description": "Creates a rule for the specified CON instance."
  },
  {
   "name": "AWS::Connect::SecurityKey",
@@ -2024,6 +2028,10 @@
   "description": "Use the AWS::IoT::CertificateProvider resource to declare an AWS IoT Certificate Provider."
  },
  {
+  "name": "AWS::IoT::Command",
+  "description": "Represents the resource definition of AWS IoT Command."
+ },
+ {
   "name": "AWS::IoT::CustomMetric",
   "description": "A custom metric published by your devices to Device Defender."
  },
@@ -2480,6 +2488,10 @@
   "description": "The ``AWS::Logs::SubscriptionFilter`` resource specifies a subscription filter and associates it with the specified log group. Subscription filters allow you to subscribe to a real-time stream of log events and have them delivered to a specific destination. Currently, the supported destinations are:\n  +  An Amazon Kinesis data stream belonging to the same account as the subscription filter, for same-account delivery.\n  +  A logical destination that belongs to a different account, for cross-account delivery.\n  +  An Amazon Kinesis Firehose delivery stream that belongs to the same account as the subscription filter, for same-account delivery.\n  +  An LAMlong function that belongs to the same account as the subscription filter, for same-account delivery.\n  \n There can be as many as two subscription filters associated with a log group."
  },
  {
+  "name": "AWS::Logs::Transformer",
+  "description": "Specifies a transformer on the log group to transform logs into consistent structured and information rich format."
+ },
+ {
   "name": "AWS::LookoutEquipment::InferenceScheduler",
   "description": "Resource schema for LookoutEquipment InferenceScheduler."
  },
@@ -2756,6 +2768,10 @@
   "description": "The AWS::NetworkManager::Device type describes a device."
  },
  {
+  "name": "AWS::NetworkManager::DirectConnectGatewayAttachment",
+  "description": "AWS::NetworkManager::DirectConnectGatewayAttachment Resource Type"
+ },
+ {
   "name": "AWS::NetworkManager::GlobalNetwork",
   "description": "The AWS::NetworkManager::GlobalNetwork type specifies a global network of the user's account"
  },
@@ -3012,8 +3028,12 @@
   "description": "Resource type definition for AWS::RAM::Permission"
  },
  {
+  "name": "AWS::RAM::ResourceShare",
+  "description": "Resource type definition for AWS::RAM::ResourceShare"
+ },
+ {
   "name": "AWS::RDS::CustomDBEngineVersion",
-  "description": "The AWS::RDS::CustomDBEngineVersion resource creates an Amazon RDS custom DB engine version."
+  "description": "Creates a custom DB engine version (CEV)."
  },
  {
   "name": "AWS::RDS::DBCluster",

@@ -11,6 +11,8 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/service/iam/types"
+
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -171,6 +173,24 @@ func ListUsers(ctx context.Context, cfg aws.Config) (*iam.ListUsersOutput, error
 	client := iam.NewFromConfig(cfg)
 	input := &iam.ListUsersInput{}
 	return client.ListUsers(ctx, input)
+}
+
+func ListPolicies(ctx context.Context, cfg aws.Config) (*iam.ListPoliciesOutput, error) {
+	client := iam.NewFromConfig(cfg)
+
+	// Initialize the request input
+	input := &iam.ListPoliciesInput{
+		Scope:    types.PolicyScopeTypeLocal,
+		MaxItems: aws.Int32(500),
+	}
+
+	// List policies with the current input
+	resp, err := client.ListPolicies(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 func ListAttachedUserPolicies(ctx context.Context, cfg aws.Config, username string) ([]string, error) {

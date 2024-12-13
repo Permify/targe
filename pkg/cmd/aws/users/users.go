@@ -102,7 +102,7 @@ func users(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 			}
 			state.SetUser(&User{
 				Name: aws.ToString(awsuser.User.UserName),
-				Arn:  "arn:aws:iam::123456789012:user/" + user,
+				Arn:  aws.ToString(awsuser.User.Arn),
 			})
 		}
 

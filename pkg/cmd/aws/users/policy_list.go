@@ -34,8 +34,7 @@ func PolicyList(state *State) PolicyListModel {
 	var items []list.Item
 	var m PolicyListModel
 
-	p := aws.Policies{}
-	policies, err := p.GetPolicies()
+	policies, err := internalaws.ListPolicies(context.Background(), state.awsConfig)
 
 	mp := aws.ManagedPolicies{}
 	managedPolicies, err := mp.GetPolicies()
@@ -46,11 +45,11 @@ func PolicyList(state *State) PolicyListModel {
 	switch state.operation.Id {
 	case AttachPolicySlug:
 
-		for _, policy := range policies {
-			if !slices.Contains(attachedPolicies, policy.Name) {
+		for _, policy := range policies.Policies {
+			if !slices.Contains(attachedPolicies, *policy.PolicyName) {
 				items = append(items, Policy{
-					Name: policy.Name,
-					Arn:  policy.Arn,
+					Name: *policy.PolicyName,
+					Arn:  *policy.Arn,
 				})
 			}
 		}
@@ -75,11 +74,11 @@ func PolicyList(state *State) PolicyListModel {
 			})
 		}
 
-		for _, policy := range policies {
-			if slices.Contains(attachedPolicies, policy.Name) {
+		for _, policy := range policies.Policies {
+			if slices.Contains(attachedPolicies, *policy.PolicyName) {
 				items = append(items, Policy{
-					Name: policy.Name,
-					Arn:  policy.Arn,
+					Name: *policy.PolicyName,
+					Arn:  *policy.Arn,
 				})
 			}
 		}

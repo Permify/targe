@@ -13,7 +13,6 @@ type Requirement interface {
 var requirements = []Requirement{
 	aws.Types{},
 	aws.ManagedPolicies{},
-	aws.Policies{},
 }
 
 func GetRequirements() []Requirement {
