@@ -42,6 +42,7 @@ func NewUsersCommand(cfg *config.Config) *cobra.Command {
 
 	f.String("user", "", "user")
 	f.String("operation", "", "operation")
+	f.String("group", "", "group")
 	f.String("policy", "", "policy")
 	f.String("resource", "", "resource")
 	f.String("service", "", "service")

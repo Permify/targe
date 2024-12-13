@@ -13,6 +13,9 @@ func RegisterUsersFlags(flags *pflag.FlagSet) {
 	if err = viper.BindPFlag("operation", flags.Lookup("operation")); err != nil {
 		panic(err)
 	}
+	if err = viper.BindPFlag("group", flags.Lookup("group")); err != nil {
+		panic(err)
+	}
 	if err = viper.BindPFlag("policy", flags.Lookup("policy")); err != nil {
 		panic(err)
 	}
