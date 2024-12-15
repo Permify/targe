@@ -123,5 +123,13 @@ func (m PolicyListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m PolicyListModel) View() string {
+	if m.err != nil {
+		return policiesStyle.Render(m.err.Error())
+	}
+
+	if len(m.list.Items()) == 0 {
+		return policiesStyle.Render("No policies found.")
+	}
+
 	return policiesStyle.Render(m.list.View())
 }

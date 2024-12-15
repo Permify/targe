@@ -1,9 +1,15 @@
 package roles
 
 import (
+	"context"
+	"slices"
+
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	internalaws "github.com/Permify/kivo/internal/aws"
+	"github.com/Permify/kivo/internal/requirements/aws"
 )
 
 var policiesStyle = lipgloss.NewStyle().Margin(1, 2)
@@ -21,41 +27,70 @@ func (i Policy) FilterValue() string { return i.Arn }
 type PolicyListModel struct {
 	state *State
 	list  list.Model
+	err   error
 }
 
 func PolicyList(state *State) PolicyListModel {
 	var items []list.Item
-	policies := []Policy{
-		{
-			Name: "AdministratorAccess",
-			Arn:  "arn:aws:iam::aws:policy/AdministratorAccess",
-		},
-		{
-			Name: "PowerUserAccess",
-			Arn:  "arn:aws:iam::aws:policy/PowerUserAccess",
-		},
-		{
-			Name: "ReadOnlyAccess",
-			Arn:  "arn:aws:iam::aws:policy/ReadOnlyAccess",
-		},
-		{
-			Name: "SecurityAudit",
-			Arn:  "arn:aws:iam::aws:policy/SecurityAudit",
-		},
-		{
-			Name: "NetworkAdministrator",
-			Arn:  "arn:aws:iam::aws:policy/NetworkAdministrator",
-		},
-	}
-
-	for _, policy := range policies {
-		items = append(items, Policy{
-			Name: policy.Name,
-			Arn:  policy.Arn,
-		})
-	}
-
 	var m PolicyListModel
+
+	policies, err := internalaws.ListPolicies(context.Background(), state.awsConfig)
+
+	mp := aws.ManagedPolicies{}
+	managedPolicies, err := mp.GetPolicies()
+
+	attachedPolicies, err := internalaws.ListAttachedRolePolicies(context.Background(), state.awsConfig, state.role.Name)
+
+	switch state.operation.Id {
+	case AttachPolicySlug:
+		for _, policy := range policies.Policies {
+			if !slices.Contains(attachedPolicies, *policy.PolicyName) {
+				items = append(items, Policy{
+					Name: *policy.PolicyName,
+					Arn:  *policy.Arn,
+				})
+			}
+		}
+
+		for _, policy := range managedPolicies {
+			if !slices.Contains(attachedPolicies, policy.Name) {
+				items = append(items, Policy{
+					Name: policy.Name,
+					Arn:  policy.Arn,
+				})
+			}
+		}
+	case DetachPolicySlug:
+		inlinePolicies, err := internalaws.ListRoleInlinePolicies(context.Background(), state.awsConfig, state.role.Name)
+		m.err = err
+
+		for _, name := range inlinePolicies {
+			items = append(items, Policy{
+				Name: name,
+				Arn:  "inline",
+			})
+		}
+
+		for _, policy := range policies.Policies {
+			if slices.Contains(attachedPolicies, *policy.PolicyName) {
+				items = append(items, Policy{
+					Name: *policy.PolicyName,
+					Arn:  *policy.Arn,
+				})
+			}
+		}
+
+		for _, policy := range managedPolicies {
+			if slices.Contains(attachedPolicies, policy.Name) {
+				items = append(items, Policy{
+					Name: policy.Name,
+					Arn:  policy.Arn,
+				})
+			}
+		}
+	}
+
+	m.err = err
 	m.state = state
 	m.list.Title = "Policies"
 	m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)
@@ -88,5 +123,13 @@ func (m PolicyListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m PolicyListModel) View() string {
+	if m.err != nil {
+		return policiesStyle.Render(m.err.Error())
+	}
+
+	if len(m.list.Items()) == 0 {
+		return policiesStyle.Render("No policies found.")
+	}
+
 	return policiesStyle.Render(m.list.View())
 }
