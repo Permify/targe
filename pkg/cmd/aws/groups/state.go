@@ -1,6 +1,7 @@
 package groups
 
 import (
+	"github.com/aws/aws-sdk-go-v2/aws"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -12,6 +13,7 @@ type State struct {
 	service      *Service
 	resource     *Resource
 	policy       *Policy
+	awsConfig    aws.Config
 }
 
 // Getters
@@ -182,4 +184,10 @@ func Switch(model tea.Model, width, height int) (tea.Model, tea.Cmd) {
 		Width:  width,
 		Height: height,
 	})
+}
+
+func NewState(c aws.Config) (*State, error) {
+	return &State{
+		awsConfig: c,
+	}, nil
 }

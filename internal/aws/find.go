@@ -27,3 +27,10 @@ func FindGroup(ctx context.Context, cfg aws.Config, groupname string) (*iam.GetG
 		GroupName: aws.String(groupname),
 	})
 }
+
+func FindRole(ctx context.Context, cfg aws.Config, rolename string) (*iam.GetRoleOutput, error) {
+	client := iam.NewFromConfig(cfg)
+	return client.GetRole(ctx, &iam.GetRoleInput{
+		RoleName: aws.String(rolename),
+	})
+}

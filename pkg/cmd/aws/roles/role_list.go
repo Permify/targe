@@ -1,9 +1,13 @@
 package roles
 
 import (
+	"context"
+
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/Permify/kivo/internal/aws"
 )
 
 var rolesStyle = lipgloss.NewStyle().Margin(1, 2)
@@ -20,30 +24,23 @@ func (i Role) FilterValue() string { return i.Arn }
 type RoleListModel struct {
 	state *State
 	list  list.Model
+	err   error
 }
 
 func RoleList(state *State) RoleListModel {
 	var items []list.Item
 
-	roles := []Role{
-		{
-			Name: "Role 1",
-			Arn:  "arn:aws:iam::123456789012:role/Role1",
-		},
-		{
-			Name: "Role 2",
-			Arn:  "arn:aws:iam::123456789012:role/Role2",
-		},
-	}
+	output, err := aws.ListRoles(context.Background(), state.awsConfig)
 
-	for _, role := range roles {
+	for _, role := range output.Roles {
 		items = append(items, Role{
-			Name: role.Name,
-			Arn:  role.Arn,
+			Name: *role.RoleName,
+			Arn:  *role.Arn,
 		})
 	}
 
 	var m RoleListModel
+	m.err = err
 	m.state = state
 	m.list.Title = "Roles"
 	m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)

@@ -1,13 +1,18 @@
 package roles
 
 import (
+	"context"
 	"fmt"
 	"os"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	internalaws "github.com/Permify/kivo/internal/aws"
 	"github.com/Permify/kivo/internal/config"
 )
 
@@ -64,26 +69,52 @@ func roles(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 		service := viper.GetString("service")
 		policyOption := viper.GetString("policy-option")
 
-		state := &State{}
+		// Load the AWS configuration
+		awscfg, err := awsconfig.LoadDefaultConfig(context.Background())
+		if err != nil {
+			return err
+		}
+
+		state, err := NewState(awscfg)
+		if err != nil {
+			return fmt.Errorf("failed to create new state: %w", err)
+		}
+
 		if role != "" {
+			awsrole, err := internalaws.FindRole(context.Background(), awscfg, role)
+			if err != nil {
+				return err
+			}
+
 			state.SetRole(&Role{
-				Name: role,
-				Arn:  "arn:aws:iam::123456789012:role/" + role,
+				Name: aws.ToString(awsrole.Role.RoleName),
+				Arn:  aws.ToString(awsrole.Role.Arn),
 			})
 		}
 
 		if operation != "" {
+			// Check if the operation exists in the ReachableOperations map
+			op, exists := ReachableOperations[operation]
+			if !exists {
+				return fmt.Errorf("Operation '%s' does not exist in ReachableOperations\n", operation)
+			}
+
 			state.SetOperation(&Operation{
-				Id:   operation,
-				Name: ReachableOperations[operation].Name,
-				Desc: ReachableOperations[operation].Desc,
+				Id:   op.Id,
+				Name: op.Name,
+				Desc: op.Desc,
 			})
 		}
 
 		if policy != "" {
+			awspolicy, err := internalaws.FindPolicy(context.Background(), awscfg, policy)
+			if err != nil {
+				return err
+			}
+
 			state.SetPolicy(&Policy{
-				Name: policy,
-				Arn:  "arn:aws:iam::aws:policy/" + policy,
+				Name: aws.ToString(awspolicy.Policy.PolicyName),
+				Arn:  aws.ToString(awspolicy.Policy.Arn),
 			})
 		}
 
@@ -101,9 +132,15 @@ func roles(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 		}
 
 		if policyOption != "" {
+			// Check if the operation exists in the ReachableOperations map
+			op, exists := ReachableCustomPolicyOptions[policyOption]
+			if !exists {
+				return fmt.Errorf("Policy options '%s' does not exist in ReachableCustomPolicyOptions\n", policyOption)
+			}
+
 			state.SetPolicyOption(&CustomPolicyOption{
-				Name: policyOption,
-				Desc: ReachableCustomPolicyOptions[policyOption].Desc,
+				Name: op.Name,
+				Desc: op.Desc,
 			})
 		}
 

@@ -1,9 +1,13 @@
 package groups
 
 import (
+	"context"
+
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/Permify/kivo/internal/aws"
 )
 
 var groupsStyle = lipgloss.NewStyle().Margin(1, 2)
@@ -20,30 +24,23 @@ func (i Group) FilterValue() string { return i.Arn }
 type GroupListModel struct {
 	state *State
 	list  list.Model
+	err   error
 }
 
 func GroupList(state *State) GroupListModel {
 	var items []list.Item
 
-	groups := []Group{
-		{
-			Name: "Group 1",
-			Arn:  "arn:aws:iam::123456789012:group/Group1",
-		},
-		{
-			Name: "Group 2",
-			Arn:  "arn:aws:iam::123456789012:group/Group2",
-		},
-	}
+	output, err := aws.ListGroups(context.Background(), state.awsConfig)
 
-	for _, group := range groups {
+	for _, group := range output.Groups {
 		items = append(items, Group{
-			Name: group.Name,
-			Arn:  group.Arn,
+			Name: *group.GroupName,
+			Arn:  *group.Arn,
 		})
 	}
 
 	var m GroupListModel
+	m.err = err
 	m.state = state
 	m.list.Title = "Groups"
 	m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)

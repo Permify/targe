@@ -40,11 +40,9 @@ func PolicyList(state *State) PolicyListModel {
 	managedPolicies, err := mp.GetPolicies()
 
 	attachedPolicies, err := internalaws.ListAttachedUserPolicies(context.Background(), state.awsConfig, state.user.Name)
-	m.err = err
 
 	switch state.operation.Id {
 	case AttachPolicySlug:
-
 		for _, policy := range policies.Policies {
 			if !slices.Contains(attachedPolicies, *policy.PolicyName) {
 				items = append(items, Policy{
@@ -62,7 +60,6 @@ func PolicyList(state *State) PolicyListModel {
 				})
 			}
 		}
-
 	case DetachPolicySlug:
 		inlinePolicies, err := internalaws.ListUserInlinePolicies(context.Background(), state.awsConfig, state.user.Name)
 		m.err = err

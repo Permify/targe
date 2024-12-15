@@ -244,44 +244,39 @@ func ListRoles(ctx context.Context, cfg aws.Config) (*iam.ListRolesOutput, error
 	return client.ListRoles(ctx, input)
 }
 
-func ListGroupPolicies(ctx context.Context, cfg aws.Config, groupName string) ([]string, error) {
+func ListGroupInlinePolicies(ctx context.Context, cfg aws.Config, groupname string) ([]string, error) {
 	client := iam.NewFromConfig(cfg)
-	paginator := iam.NewListGroupPoliciesPaginator(client, &iam.ListGroupPoliciesInput{
-		GroupName: aws.String(groupName),
-	})
 
-	var inlinePolicies []string
-
-	for paginator.HasMorePages() {
-		output, err := paginator.NextPage(ctx)
-		if err != nil {
-			return nil, fmt.Errorf("failed to list inline group policies: %v", err)
-		}
-
-		inlinePolicies = append(inlinePolicies, output.PolicyNames...)
+	input := &iam.ListGroupPoliciesInput{
+		GroupName: aws.String(groupname),
 	}
 
-	return inlinePolicies, nil
+	resp, err := client.ListGroupPolicies(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.PolicyNames, nil
 }
 
-func ListAttachedGroupPolicies(ctx context.Context, cfg aws.Config, groupName string) ([]string, error) {
+func ListAttachedGroupPolicies(ctx context.Context, cfg aws.Config, groupname string) ([]string, error) {
 	client := iam.NewFromConfig(cfg)
-	paginator := iam.NewListAttachedGroupPoliciesPaginator(client, &iam.ListAttachedGroupPoliciesInput{
-		GroupName: aws.String(groupName),
-	})
 
-	var attachedPolicies []string
+	var names []string
 
-	for paginator.HasMorePages() {
-		output, err := paginator.NextPage(ctx)
-		if err != nil {
-			return nil, fmt.Errorf("failed to list attached group policies: %v", err)
-		}
-
-		for _, policy := range output.AttachedPolicies {
-			attachedPolicies = append(attachedPolicies, *policy.PolicyName)
-		}
+	// List the user's attached policies
+	input := &iam.ListAttachedGroupPoliciesInput{
+		GroupName: aws.String(groupname),
 	}
 
-	return attachedPolicies, nil
+	resp, err := client.ListAttachedGroupPolicies(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, p := range resp.AttachedPolicies {
+		names = append(names, *p.PolicyName)
+	}
+
+	return names, nil
 }
