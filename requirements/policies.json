@@ -1,0 +1,126 @@
+[
+ {
+  "name": "AWSLambdaVPCAccessExecutionRole-a3caa621-31a1-4452-8af0-b83697fa951d",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/AWSLambdaVPCAccessExecutionRole-a3caa621-31a1-4452-8af0-b83697fa951d"
+ },
+ {
+  "name": "KarpenterControllerPolicy-permify-karpenter-ohio",
+  "arn": "arn:aws:iam::107288898794:policy/KarpenterControllerPolicy-permify-karpenter-ohio"
+ },
+ {
+  "name": "AWSLambdaBasicExecutionRole-9fceaa3f-d0a9-4e0f-ac0a-e92304e03ebd",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/AWSLambdaBasicExecutionRole-9fceaa3f-d0a9-4e0f-ac0a-e92304e03ebd"
+ },
+ {
+  "name": "AWSLambdaBasicExecutionRole-4e492876-5b6c-4cf9-af76-9a03c69322e3",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/AWSLambdaBasicExecutionRole-4e492876-5b6c-4cf9-af76-9a03c69322e3"
+ },
+ {
+  "name": "AWSLoadBalancerControllerIAMPolicy",
+  "arn": "arn:aws:iam::107288898794:policy/AWSLoadBalancerControllerIAMPolicy"
+ },
+ {
+  "name": "AWSLambdaVPCAccessExecutionRole-6b111e5b-af13-4674-b3fb-fc7a8e872e52",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/AWSLambdaVPCAccessExecutionRole-6b111e5b-af13-4674-b3fb-fc7a8e872e52"
+ },
+ {
+  "name": "rds-proxy-policy-1714770444306",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/rds-proxy-policy-1714770444306"
+ },
+ {
+  "name": "AWSLambdaVPCAccessExecutionRole-51a3724d-423b-4995-8486-8659ea785368",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/AWSLambdaVPCAccessExecutionRole-51a3724d-423b-4995-8486-8659ea785368"
+ },
+ {
+  "name": "EKSFullManager",
+  "arn": "arn:aws:iam::107288898794:policy/EKSFullManager"
+ },
+ {
+  "name": "AWSLambdaBasicExecutionRole-0a4d4885-f8cf-491c-8a91-80c20835e3a2",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/AWSLambdaBasicExecutionRole-0a4d4885-f8cf-491c-8a91-80c20835e3a2"
+ },
+ {
+  "name": "AWSLambdaBasicExecutionRole-671512d2-d370-4675-828a-65f444d4958a",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/AWSLambdaBasicExecutionRole-671512d2-d370-4675-828a-65f444d4958a"
+ },
+ {
+  "name": "rds-proxy-policy-1714780672173",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/rds-proxy-policy-1714780672173"
+ },
+ {
+  "name": "KarpenterControllerPolicy-cloud",
+  "arn": "arn:aws:iam::107288898794:policy/KarpenterControllerPolicy-cloud"
+ },
+ {
+  "name": "rds-proxy-policy-1714739686273",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/rds-proxy-policy-1714739686273"
+ },
+ {
+  "name": "rds-proxy-policy-1726507887904",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/rds-proxy-policy-1726507887904"
+ },
+ {
+  "name": "playground-access-policy",
+  "arn": "arn:aws:iam::107288898794:policy/playground-access-policy"
+ },
+ {
+  "name": "rds-proxy-policy-1714645466490",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/rds-proxy-policy-1714645466490"
+ },
+ {
+  "name": "AWSLambdaBasicExecutionRole-825c5f94-9c81-423c-b5a1-dc52a7409019",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/AWSLambdaBasicExecutionRole-825c5f94-9c81-423c-b5a1-dc52a7409019"
+ },
+ {
+  "name": "AWSLambdaBasicExecutionRole-88a65331-cd14-4561-a68e-8ac2e81bbb56",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/AWSLambdaBasicExecutionRole-88a65331-cd14-4561-a68e-8ac2e81bbb56"
+ },
+ {
+  "name": "rds-proxy-policy-1713858779135",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/rds-proxy-policy-1713858779135"
+ },
+ {
+  "name": "Cloudtrail-CW-access-policy-all-region-events-7976965f-d2f6-4cf0-9762-a3abb63e0f2d",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/Cloudtrail-CW-access-policy-all-region-events-7976965f-d2f6-4cf0-9762-a3abb63e0f2d"
+ },
+ {
+  "name": "rds-proxy-policy-1726504301442",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/rds-proxy-policy-1726504301442"
+ },
+ {
+  "name": "KarpenterControllerPolicy-permify-karpenter",
+  "arn": "arn:aws:iam::107288898794:policy/KarpenterControllerPolicy-permify-karpenter"
+ },
+ {
+  "name": "CastEKSPolicy",
+  "arn": "arn:aws:iam::107288898794:policy/CastEKSPolicy"
+ },
+ {
+  "name": "AWSLambdaBasicExecutionRole-d8ed2b6a-27d3-4ee8-bb6f-65929a70349a",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/AWSLambdaBasicExecutionRole-d8ed2b6a-27d3-4ee8-bb6f-65929a70349a"
+ },
+ {
+  "name": "rds-proxy-policy-1716399922162",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/rds-proxy-policy-1716399922162"
+ },
+ {
+  "name": "AmazonEKS_EFS_CSI_Driver_Policy",
+  "arn": "arn:aws:iam::107288898794:policy/AmazonEKS_EFS_CSI_Driver_Policy"
+ },
+ {
+  "name": "rds-proxy-policy-1714764375474",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/rds-proxy-policy-1714764375474"
+ },
+ {
+  "name": "KarpenterControllerPolicy-permify-cluster-karpenter",
+  "arn": "arn:aws:iam::107288898794:policy/KarpenterControllerPolicy-permify-cluster-karpenter"
+ },
+ {
+  "name": "rds-proxy-policy-1726507530925",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/rds-proxy-policy-1726507530925"
+ },
+ {
+  "name": "rds-proxy-policy-1714751580124",
+  "arn": "arn:aws:iam::107288898794:policy/service-role/rds-proxy-policy-1714751580124"
+ }
+]
