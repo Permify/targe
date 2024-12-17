@@ -131,7 +131,7 @@ func r(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 		program := tea.NewProgram(&RootModel{command: command})
 		mod, err := program.Run()
 		if err != nil {
-			return fmt.Errorf("Program encountered an error: %w", err)
+			return fmt.Errorf("program encountered an error: %w", err)
 		}
 
 		// Check user choice
