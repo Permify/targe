@@ -3,6 +3,11 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
+
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/spf13/viper"
 
 	"github.com/spf13/cobra"
 
@@ -10,6 +15,70 @@ import (
 	"github.com/Permify/kivo/pkg/cmd/ai"
 	"github.com/Permify/kivo/pkg/cmd/aws"
 )
+
+type RootModel struct {
+	command  string
+	choice   string
+	quitting bool
+}
+
+func (m RootModel) Init() tea.Cmd {
+	return nil
+}
+
+func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "y", "Y", "", tea.KeyEnter.String():
+			return RootModel{command: m.command, choice: "yes", quitting: true}, tea.Quit
+		case "n", "N":
+			return RootModel{command: m.command, choice: "no", quitting: true}, tea.Quit
+		case tea.KeyCtrlC.String(), tea.KeyEsc.String():
+			return m, tea.Quit
+		}
+	}
+	return m, nil
+}
+
+func (m RootModel) View() string {
+	if m.quitting {
+		if m.choice == "yes" {
+			return ""
+		}
+		return fmt.Sprintf(
+			"%s\n\n",
+			lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("9")).Render("✘ Command aborted."),
+		)
+	}
+
+	// Define styles
+	brandStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("7")).
+		Padding(0, 0)
+
+	headerStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("6")).
+		Underline(true)
+
+	messageStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("2")).
+		Italic(true).
+		PaddingLeft(2)
+
+	promptStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("3")).
+		PaddingTop(1)
+
+	// Render sections
+	brand := brandStyle.Render("Generating your command...")
+	header := headerStyle.Render("Here’s your command:")
+	message := messageStyle.Render(fmt.Sprintf("➤ kivo %s", m.command))
+	prompt := promptStyle.Render("Would you like to use this command? (Y/n):")
+
+	// Combine output
+	return fmt.Sprintf("%s\n\n%s\n\n%s\n%s", brand, header, message, prompt)
+}
 
 // NewRootCommand - Creates new root command
 func NewRootCommand() *cobra.Command {
@@ -24,6 +93,18 @@ func NewRootCommand() *cobra.Command {
 		Use:   "kivo",
 		Short: "",
 		Long:  ``,
+		RunE:  r(cfg),
+	}
+
+	f := root.Flags()
+
+	f.String("ticket", "", "ticket")
+
+	// SilenceUsage is set to true to suppress usage when an error occurs
+	root.SilenceUsage = true
+
+	root.PreRun = func(cmd *cobra.Command, args []string) {
+		RegisterRootFlags(f)
 	}
 
 	awsCommand := aws.NewAwsCommand(cfg)
@@ -33,4 +114,34 @@ func NewRootCommand() *cobra.Command {
 	root.AddCommand(aiCommand)
 
 	return root
+}
+
+func r(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
+	return func(cmd *cobra.Command, args []string) error {
+		ticket := viper.GetString("ticket")
+
+		gptResponse, err := ai.UserPrompt(cfg.OpenaiApiKey, ticket)
+		if err != nil {
+			return err
+		}
+
+		command := ai.GenerateCLICommand(gptResponse)
+
+		// Bubble Tea program setup
+		program := tea.NewProgram(&RootModel{command: command})
+		mod, err := program.Run()
+		if err != nil {
+			return fmt.Errorf("Program encountered an error: %w", err)
+		}
+
+		// Check user choice
+		if result, ok := mod.(RootModel); ok && result.choice == "yes" {
+			args := []string{"kivo"}
+			args = append(args, strings.Split(command, " ")...)
+			cmd.SetArgs(args)
+			return cmd.Root().Execute()
+		}
+
+		return nil
+	}
 }

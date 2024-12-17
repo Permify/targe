@@ -75,7 +75,6 @@ func users(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 			}
 		}
 
-		// get min coverage from viper
 		user := viper.GetString("user")
 		operation := viper.GetString("operation")
 		group := viper.GetString("group")
