@@ -236,17 +236,12 @@ func toStringSlice(v interface{}) []string {
 	}
 }
 
-func generatePolicyPromt(userInput string) string {
-	//TODO
-	return userInput
-}
-
-func generatePolicy(apiKey, model, prompt string, temperature float64) (IAMPolicy, error) {
+func GeneratePolicy(apiKey, prompt string) (IAMPolicy, error) {
 	url := "https://api.openai.com/v1/chat/completions"
 
 	payload := map[string]interface{}{
-		"model":       model,
-		"temperature": temperature,
+		"model":       "gpt-4o",
+		"temperature": 0.1,
 		"messages": []map[string]string{
 			{"role": "system", "content": "You are an assistant that produces IAM policies as JSON."},
 			{"role": "user", "content": prompt},

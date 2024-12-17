@@ -7,7 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Permify/kivo/internal/aws"
+	internalaws "github.com/Permify/kivo/internal/aws"
 )
 
 var rolesStyle = lipgloss.NewStyle().Margin(1, 2)
@@ -22,15 +22,16 @@ func (i Role) Description() string { return i.Arn }
 func (i Role) FilterValue() string { return i.Arn }
 
 type RoleListModel struct {
+	api   *internalaws.Api
 	state *State
 	list  list.Model
 	err   error
 }
 
-func RoleList(state *State) RoleListModel {
+func RoleList(api *internalaws.Api, state *State) RoleListModel {
 	var items []list.Item
 
-	output, err := aws.ListRoles(context.Background(), state.awsConfig)
+	output, err := api.ListRoles(context.Background())
 
 	for _, role := range output.Roles {
 		items = append(items, Role{
@@ -41,6 +42,7 @@ func RoleList(state *State) RoleListModel {
 
 	var m RoleListModel
 	m.err = err
+	m.api = api
 	m.state = state
 	m.list.Title = "Roles"
 	m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)
@@ -60,7 +62,7 @@ func (m RoleListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			role := m.list.SelectedItem().(Role)
 			m.state.SetRole(&role)
-			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
+			return Switch(m.state.Next(m.api), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := rolesStyle.GetFrameSize()

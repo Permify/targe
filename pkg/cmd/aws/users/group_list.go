@@ -24,18 +24,21 @@ func (i Group) Description() string { return i.Arn }
 func (i Group) FilterValue() string { return i.Arn }
 
 type GroupListModel struct {
+	api   *internalaws.Api
 	state *State
 	list  list.Model
 	err   error
 }
 
-func GroupList(state *State) GroupListModel {
+func GroupList(api *internalaws.Api, state *State) GroupListModel {
 	var items []list.Item
 	var m GroupListModel
+	m.api = api
+	m.state = state
 
-	groups, err := internalaws.ListGroups(context.Background(), state.awsConfig)
+	groups, err := api.ListGroups(context.Background())
 
-	userGroups, err := internalaws.ListGroupsForUser(context.Background(), state.awsConfig, state.user.Name)
+	userGroups, err := api.ListGroupsForUser(context.Background(), state.user.Name)
 	m.err = err
 
 	switch state.operation.Id {
@@ -60,7 +63,6 @@ func GroupList(state *State) GroupListModel {
 	}
 
 	m.err = err
-	m.state = state
 	m.list.Title = "Groups"
 	m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)
 	return m
@@ -79,7 +81,7 @@ func (m GroupListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			group := m.list.SelectedItem().(Group)
 			m.state.SetGroup(&group)
-			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
+			return Switch(m.state.Next(m.api), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := groupsStyle.GetFrameSize()

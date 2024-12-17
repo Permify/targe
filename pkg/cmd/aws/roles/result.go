@@ -10,6 +10,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	internalaws "github.com/Permify/kivo/internal/aws"
 )
 
 const maxWidth = 100
@@ -56,6 +58,7 @@ func NewStyles(lg *lipgloss.Renderer) *Styles {
 }
 
 type ResultModel struct {
+	api    *internalaws.Api
 	state  *State
 	lg     *lipgloss.Renderer
 	styles *Styles
@@ -63,7 +66,7 @@ type ResultModel struct {
 	width  int
 }
 
-func Result(state *State) ResultModel {
+func Result(api *internalaws.Api, state *State) ResultModel {
 	m := ResultModel{width: maxWidth}
 	m.lg = lipgloss.DefaultRenderer()
 	m.styles = NewStyles(m.lg)

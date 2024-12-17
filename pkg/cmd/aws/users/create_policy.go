@@ -1,26 +1,31 @@
 package users
 
 import (
-	"encoding/json"
+	`encoding/json`
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	internalaws "github.com/Permify/kivo/internal/aws"
+	`github.com/Permify/kivo/pkg/cmd/ai`
 )
 
 var createPolicyStyle = lipgloss.NewStyle().Margin(1, 2)
 
 type CreatePolicyModel struct {
+	api         *internalaws.Api
 	state       *State
+	message     string
 	senderStyle lipgloss.Style
 	viewport    viewport.Model
 	textarea    textarea.Model
 	err         error
 }
 
-func CreatePolicy(state *State) CreatePolicyModel {
+func CreatePolicy(api *internalaws.Api, state *State) CreatePolicyModel {
 	ta := textarea.New()
 	ta.Placeholder = "Send a message..."
 	ta.Focus()
@@ -42,6 +47,7 @@ func CreatePolicy(state *State) CreatePolicyModel {
 	ta.KeyMap.InsertNewline.SetEnabled(false)
 
 	return CreatePolicyModel{
+		api:         api,
 		state:       state,
 		viewport:    vp,
 		textarea:    ta,
@@ -70,30 +76,32 @@ func (m CreatePolicyModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 
 			if m.state.policy != nil {
-				return Switch(m.state.Next(), 0, 0)
+				return Switch(m.state.Next(m.api), 0, 0)
 			} else {
-				jsonStr := `{
-		"Version": "2012-10-17",
-		"Statement": [
-			{
-				"Effect": "Allow",
-				"Action": "s3:*",
-				"Resource": "*"
-			}
-		]
-	}`
 
-				m.viewport.SetContent(jsonStr)
+				m.message = m.textarea.Value()
+
+				policy, err := ai.GeneratePolicy("", m.message)
+				if err != nil {
+					m.err = err
+				}
+
+				policyJson, err := json.Marshal(policy)
+				if err != nil {
+					m.err = err
+				}
+
+				m.viewport.SetContent(string(policyJson))
 				m.textarea.Reset()
 				m.viewport.GotoBottom()
 
-				var result map[string]interface{}
-				m.err = json.Unmarshal([]byte(jsonStr), &result)
-				m.state.SetPolicy(&Policy{
-					Arn:      "new",
-					Name:     "New",
-					Document: result,
-				})
+				//var result map[string]interface{}
+				//m.err = json.Unmarshal([]byte(jsonStr), &result)
+				//m.state.SetPolicy(&Policy{
+				//	Arn:      "new",
+				//	Name:     "New",
+				//	Document: result,
+				//})
 			}
 		}
 	}

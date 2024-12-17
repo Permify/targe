@@ -4,6 +4,8 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	internalaws "github.com/Permify/kivo/internal/aws"
 )
 
 var userOperationsStyle = lipgloss.NewStyle().Margin(1, 2)
@@ -19,17 +21,19 @@ func (i Operation) Description() string { return i.Desc }
 func (i Operation) FilterValue() string { return i.Name }
 
 type OperationListModel struct {
+	api   *internalaws.Api
 	state *State
 	list  list.Model
 }
 
-func OperationList(state *State) OperationListModel {
+func OperationList(api *internalaws.Api, state *State) OperationListModel {
 	items := []list.Item{
 		Operation{Id: AttachPolicySlug, Name: ReachableOperations[AttachPolicySlug].Name, Desc: ReachableOperations[AttachPolicySlug].Desc},
 		Operation{Id: DetachPolicySlug, Name: ReachableOperations[DetachPolicySlug].Name, Desc: ReachableOperations[DetachPolicySlug].Desc},
 		Operation{Id: AttachCustomPolicySlug, Name: ReachableOperations[AttachCustomPolicySlug].Name, Desc: ReachableOperations[AttachCustomPolicySlug].Desc},
 	}
 	var m OperationListModel
+	m.api = api
 	m.state = state
 	m.list.Title = "Operations"
 	m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)
@@ -49,7 +53,7 @@ func (m OperationListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			option := m.list.SelectedItem().(Operation)
 			m.state.SetOperation(&option)
-			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
+			return Switch(m.state.Next(m.api), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := userOperationsStyle.GetFrameSize()

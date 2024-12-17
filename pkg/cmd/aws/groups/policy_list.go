@@ -25,21 +25,22 @@ func (i Policy) Description() string { return i.Arn }
 func (i Policy) FilterValue() string { return i.Arn }
 
 type PolicyListModel struct {
+	api   *internalaws.Api
 	state *State
 	list  list.Model
 	err   error
 }
 
-func PolicyList(state *State) PolicyListModel {
+func PolicyList(api *internalaws.Api, state *State) PolicyListModel {
 	var items []list.Item
 	var m PolicyListModel
 
-	policies, err := internalaws.ListPolicies(context.Background(), state.awsConfig)
+	policies, err := api.ListPolicies(context.Background())
 
 	mp := aws.ManagedPolicies{}
 	managedPolicies, err := mp.GetPolicies()
 
-	attachedPolicies, err := internalaws.ListAttachedGroupPolicies(context.Background(), state.awsConfig, state.group.Name)
+	attachedPolicies, err := api.ListAttachedGroupPolicies(context.Background(), state.group.Name)
 
 	switch state.operation.Id {
 	case AttachPolicySlug:
@@ -61,7 +62,7 @@ func PolicyList(state *State) PolicyListModel {
 			}
 		}
 	case DetachPolicySlug:
-		inlinePolicies, err := internalaws.ListGroupInlinePolicies(context.Background(), state.awsConfig, state.group.Name)
+		inlinePolicies, err := api.ListGroupInlinePolicies(context.Background(), state.group.Name)
 		m.err = err
 
 		for _, name := range inlinePolicies {
@@ -91,6 +92,7 @@ func PolicyList(state *State) PolicyListModel {
 	}
 
 	m.err = err
+	m.api = api
 	m.state = state
 	m.list.Title = "Policies"
 	m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)
@@ -110,7 +112,7 @@ func (m PolicyListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			policy := m.list.SelectedItem().(Policy)
 			m.state.SetPolicy(&policy)
-			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
+			return Switch(m.state.Next(m.api), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := policiesStyle.GetFrameSize()

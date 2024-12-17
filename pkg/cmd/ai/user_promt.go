@@ -58,7 +58,7 @@ var UserPromptSchema = map[string]interface{}{
 			},
 			"requested_resource_type": map[string]interface{}{
 				"type":        []string{"string", "null"},
-				"description": "The type of aws resource user wants access for. S3, RDS, EC2 etc",
+				"description": "The type of aws resource user wants access for. AWS::S3::Bucket, AWS::RDS::DBCluster, AWS::RDS::DBInstance, AWS::EC2::Instance etc",
 			},
 			"requested_resource": map[string]interface{}{
 				"type":        []string{"string", "null"},
@@ -84,17 +84,12 @@ var UserPromptSchema = map[string]interface{}{
 	},
 }
 
-func generateUserPrompt(userInput string) string {
-	//TODO
-	return userInput
-}
-
-func userPrompt(apiKey, model, prompt string, temperature float64) (GPTResponse, error) {
+func UserPrompt(apiKey, prompt string) (GPTResponse, error) {
 	url := "https://api.openai.com/v1/chat/completions"
 	schema := UserPromptSchema
 	payload := map[string]interface{}{
-		"model":       model,
-		"temperature": temperature,
+		"model":       "gpt-4o",
+		"temperature": 0.1,
 		"messages": []map[string]string{
 			{"role": "system", "content": `
 				You are an assistant designed to interpret IAM-related requests and convert them into structured JSON objects.
@@ -172,19 +167,26 @@ func userPrompt(apiKey, model, prompt string, temperature float64) (GPTResponse,
 }
 
 func GenerateCLICommand(response GPTResponse) string {
-	flags := []string{}
-
-	if response.Action != "" {
-		flags = append(flags, fmt.Sprintf("--operation %s", response.Action))
-	}
+	var flags []string
 
 	if response.Principal != nil {
 		if val, ok := response.Principal["type"]; ok && val != "" {
-			flags = append(flags, fmt.Sprintf("--type %s", val))
+			flags = append(flags, fmt.Sprintf("%s", val))
+			if val == "users" {
+				flags = append(flags, "--user")
+			} else if val == "groups" {
+				flags = append(flags, "--group")
+			} else if val == "roles" {
+				flags = append(flags, "--role")
+			}
 		}
 		if val, ok := response.Principal["name"]; ok && val != "" {
-			flags = append(flags, fmt.Sprintf("--name %s", val))
+			flags = append(flags, fmt.Sprintf("%s", val))
 		}
+	}
+
+	if response.Action != "" {
+		flags = append(flags, fmt.Sprintf("--operation %s", response.Action))
 	}
 
 	if response.Policy != "" {
@@ -199,10 +201,10 @@ func GenerateCLICommand(response GPTResponse) string {
 		flags = append(flags, fmt.Sprintf("--service %s", response.RequestedResourceType))
 	}
 
-	//TODO: policy option?
-	if !response.IsManagedPolicy {
-		flags = append(flags, "--policy-option custom")
-	}
+	// TODO: policy option?
+	//if !response.IsManagedPolicy {
+	//	flags = append(flags, "--policy-option custom")
+	//}
 
 	if len(flags) == 0 {
 		return "No valid flags generated from GPT response."

@@ -7,7 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Permify/kivo/internal/aws"
+	internalaws "github.com/Permify/kivo/internal/aws"
 )
 
 var groupsStyle = lipgloss.NewStyle().Margin(1, 2)
@@ -22,15 +22,16 @@ func (i Group) Description() string { return i.Arn }
 func (i Group) FilterValue() string { return i.Arn }
 
 type GroupListModel struct {
+	api   *internalaws.Api
 	state *State
 	list  list.Model
 	err   error
 }
 
-func GroupList(state *State) GroupListModel {
+func GroupList(api *internalaws.Api, state *State) GroupListModel {
 	var items []list.Item
 
-	output, err := aws.ListGroups(context.Background(), state.awsConfig)
+	output, err := api.ListGroups(context.Background())
 
 	for _, group := range output.Groups {
 		items = append(items, Group{
@@ -41,6 +42,7 @@ func GroupList(state *State) GroupListModel {
 
 	var m GroupListModel
 	m.err = err
+	m.api = api
 	m.state = state
 	m.list.Title = "Groups"
 	m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)
@@ -60,7 +62,7 @@ func (m GroupListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			group := m.list.SelectedItem().(Group)
 			m.state.SetGroup(&group)
-			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
+			return Switch(m.state.Next(m.api), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := groupsStyle.GetFrameSize()

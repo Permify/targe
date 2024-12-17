@@ -75,13 +75,11 @@ func groups(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		state, err := NewState(awscfg)
-		if err != nil {
-			return fmt.Errorf("failed to create new state: %w", err)
-		}
+		api := internalaws.NewApi(awscfg)
+		state := &State{}
 
 		if group != "" {
-			awsgroup, err := internalaws.FindGroup(context.Background(), awscfg, group)
+			awsgroup, err := api.FindGroup(context.Background(), group)
 			if err != nil {
 				return err
 			}
@@ -107,7 +105,7 @@ func groups(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 		}
 
 		if policy != "" {
-			awspolicy, err := internalaws.FindPolicy(context.Background(), awscfg, policy)
+			awspolicy, err := api.FindPolicy(context.Background(), policy)
 			if err != nil {
 				return err
 			}
@@ -144,7 +142,7 @@ func groups(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 			})
 		}
 
-		p := tea.NewProgram(RootModel(state.Next()), tea.WithAltScreen())
+		p := tea.NewProgram(RootModel(state.Next(api)), tea.WithAltScreen())
 		if _, err := p.Run(); err != nil {
 			fmt.Println("Error running program:", err)
 			os.Exit(1)
