@@ -84,11 +84,6 @@ var UserPromptSchema = map[string]interface{}{
 	},
 }
 
-func generateUserPrompt(userInput string) string {
-	// TODO
-	return userInput
-}
-
 func UserPrompt(apiKey, prompt string) (GPTResponse, error) {
 	url := "https://api.openai.com/v1/chat/completions"
 	schema := UserPromptSchema
