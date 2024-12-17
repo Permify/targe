@@ -8,11 +8,14 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	internalaws "github.com/Permify/kivo/internal/aws"
 )
 
 var createPolicyStyle = lipgloss.NewStyle().Margin(1, 2)
 
 type CreatePolicyModel struct {
+	api         *internalaws.Api
 	state       *State
 	senderStyle lipgloss.Style
 	viewport    viewport.Model
@@ -20,7 +23,7 @@ type CreatePolicyModel struct {
 	err         error
 }
 
-func CreatePolicy(state *State) CreatePolicyModel {
+func CreatePolicy(api *internalaws.Api, state *State) CreatePolicyModel {
 	ta := textarea.New()
 	ta.Placeholder = "Send a message..."
 	ta.Focus()
@@ -42,6 +45,7 @@ func CreatePolicy(state *State) CreatePolicyModel {
 	ta.KeyMap.InsertNewline.SetEnabled(false)
 
 	return CreatePolicyModel{
+		api:         api,
 		state:       state,
 		viewport:    vp,
 		textarea:    ta,
@@ -70,7 +74,7 @@ func (m CreatePolicyModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 
 			if m.state.policy != nil {
-				return Switch(m.state.Next(), 0, 0)
+				return Switch(m.state.Next(m.api), 0, 0)
 			} else {
 				jsonStr := `{
 		"Version": "2012-10-17",

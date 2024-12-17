@@ -85,7 +85,7 @@ var UserPromptSchema = map[string]interface{}{
 }
 
 func generateUserPrompt(userInput string) string {
-	//TODO
+	// TODO
 	return userInput
 }
 
@@ -199,7 +199,7 @@ func GenerateCLICommand(response GPTResponse) string {
 		flags = append(flags, fmt.Sprintf("--service %s", response.RequestedResourceType))
 	}
 
-	//TODO: policy option?
+	// TODO: policy option?
 	if !response.IsManagedPolicy {
 		flags = append(flags, "--policy-option custom")
 	}

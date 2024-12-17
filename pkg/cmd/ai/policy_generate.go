@@ -237,7 +237,7 @@ func toStringSlice(v interface{}) []string {
 }
 
 func generatePolicyPromt(userInput string) string {
-	//TODO
+	// TODO
 	return userInput
 }
 

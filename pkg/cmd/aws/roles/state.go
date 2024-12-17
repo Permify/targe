@@ -1,8 +1,9 @@
 package roles
 
 import (
-	"github.com/aws/aws-sdk-go-v2/aws"
 	tea "github.com/charmbracelet/bubbletea"
+
+	internalaws "github.com/Permify/kivo/internal/aws"
 )
 
 // State represents the roles flow state.
@@ -13,7 +14,6 @@ type State struct {
 	service      *Service
 	resource     *Resource
 	policy       *Policy
-	awsConfig    aws.Config
 }
 
 // Getters
@@ -122,56 +122,56 @@ var ReachableCustomPolicyOptions = map[string]CustomPolicyOption{
 }
 
 // FindFlow determines the next step based on the current state.
-func (s *State) Next() tea.Model {
+func (s *State) Next(api *internalaws.Api) tea.Model {
 	// Handle case where role is not defined
 	if s.role == nil {
-		return RoleList(s)
+		return RoleList(api, s)
 	}
 
 	// Handle case where action is not defined
 	if s.operation == nil {
-		return OperationList(s)
+		return OperationList(api, s)
 	}
 
 	// Handle specific action: AttachCustomPolicySlug
 	if s.operation.Id == AttachCustomPolicySlug {
 
 		if s.policy != nil {
-			return Result(s)
+			return Result(api, s)
 		}
 
 		// Handle case where a policy option is selected
 		if s.policyOption != nil {
 			switch s.policyOption.Id {
 			case WithoutResourceSlug:
-				return CreatePolicy(s)
+				return CreatePolicy(api, s)
 
 			case WithResourceSlug:
 				// Handle case where resource is defined
 				if s.resource != nil {
-					return CreatePolicy(s)
+					return CreatePolicy(api, s)
 				}
 
 				// Handle case where service is defined
 				if s.service != nil {
-					return ResourceList(s)
+					return ResourceList(api, s)
 				}
 				// If service is not defined
-				return ServiceList(s)
+				return ServiceList(api, s)
 			}
 		} else {
 			// If no policy option is selected
-			return CustomPolicyOptionList(s)
+			return CustomPolicyOptionList(api, s)
 		}
 	}
 
 	// Handle case where no policy is selected
 	if s.policy == nil {
-		return PolicyList(s)
+		return PolicyList(api, s)
 	}
 
 	// Default fallback
-	return Result(s)
+	return Result(api, s)
 }
 
 // Switch handles window size changes and updates the model accordingly.
@@ -184,10 +184,4 @@ func Switch(model tea.Model, width, height int) (tea.Model, tea.Cmd) {
 		Width:  width,
 		Height: height,
 	})
-}
-
-func NewState(c aws.Config) (*State, error) {
-	return &State{
-		awsConfig: c,
-	}, nil
 }

@@ -7,7 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Permify/kivo/internal/aws"
+	internalaws "github.com/Permify/kivo/internal/aws"
 )
 
 var usersStyle = lipgloss.NewStyle().Margin(1, 2)
@@ -22,15 +22,19 @@ func (i User) Description() string { return i.Arn }
 func (i User) FilterValue() string { return i.Arn }
 
 type UserListModel struct {
+	api   *internalaws.Api
 	state *State
 	list  list.Model
 	err   error
 }
 
-func UserList(state *State) UserListModel {
-	var items []list.Item
+func UserList(api *internalaws.Api, state *State) UserListModel {
+	var m UserListModel
+	m.api = api
+	m.state = state
 
-	output, err := aws.ListUsers(context.Background(), state.awsConfig)
+	var items []list.Item
+	output, err := api.ListUsers(context.Background())
 
 	for _, user := range output.Users {
 		items = append(items, User{
@@ -39,9 +43,7 @@ func UserList(state *State) UserListModel {
 		})
 	}
 
-	var m UserListModel
 	m.err = err
-	m.state = state
 	m.list.Title = "Users"
 	m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)
 	return m
@@ -60,7 +62,7 @@ func (m UserListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			user := m.list.SelectedItem().(User)
 			m.state.SetUser(&user)
-			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
+			return Switch(m.state.Next(m.api), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := usersStyle.GetFrameSize()

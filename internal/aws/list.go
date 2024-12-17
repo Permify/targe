@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"regexp"
 	"time"
@@ -18,7 +17,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
-	"github.com/aws/aws-sdk-go-v2/config"
 )
 
 // Resource represents a single AWS resource.
@@ -28,7 +26,7 @@ type Resource struct {
 }
 
 // ListResources fetches resources of a given type from the AWS Resource Explorer API.
-func ListResources(resourceType string) ([]Resource, error) {
+func (op *Api) ListResources(resourceType string) ([]Resource, error) {
 	const service = "resource-explorer"
 	const endpoint = "https://resource-explorer.%s.amazonaws.com/resources-list"
 
@@ -37,17 +35,11 @@ func ListResources(resourceType string) ([]Resource, error) {
 		return nil, fmt.Errorf("resourceType cannot be empty")
 	}
 
-	// Load AWS configuration (including credentials from ~/.aws/credentials)
-	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		return nil, fmt.Errorf("failed to load AWS configuration: %w", err)
-	}
-
 	// Format the endpoint with the region
-	url := fmt.Sprintf(endpoint, cfg.Region)
+	url := fmt.Sprintf(endpoint, op.config.Region)
 
 	// Retrieve actual credentials
-	creds, err := cfg.Credentials.Retrieve(context.TODO())
+	creds, err := op.config.Credentials.Retrieve(context.TODO())
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve AWS credentials: %w", err)
 	}
@@ -69,7 +61,7 @@ func ListResources(resourceType string) ([]Resource, error) {
 	addHeaders(req, payloadHash)
 
 	// Sign the request using AWS Signature Version 4
-	err = signRequest(req, payloadHash, creds, service, cfg.Region)
+	err = signRequest(req, payloadHash, creds, service, op.config.Region)
 	if err != nil {
 		return nil, fmt.Errorf("failed to sign request: %w", err)
 	}
@@ -149,20 +141,18 @@ func extractResourceName(arn string) string {
 	return arn // Fallback to the full ARN if no match
 }
 
-func ListGroupsForUser(ctx context.Context, cfg aws.Config, username string) ([]string, error) {
+func (op *Api) ListGroupsForUser(ctx context.Context, username string) ([]string, error) {
 	var groups []string
-	client := iam.NewFromConfig(cfg)
 
 	input := &iam.ListGroupsForUserInput{
 		UserName: aws.String(username),
 	}
 
-	resp, err := client.ListGroupsForUser(ctx, input)
+	resp, err := op.client.ListGroupsForUser(ctx, input)
 	if err != nil {
-		return nil, fmt.Errorf("unable to list groups for user %s: %v", username, err)
+		return nil, err
 	}
 
-	// Extract group names
 	for _, group := range resp.Groups {
 		groups = append(groups, *group.GroupName)
 	}
@@ -170,23 +160,18 @@ func ListGroupsForUser(ctx context.Context, cfg aws.Config, username string) ([]
 	return groups, nil
 }
 
-func ListUsers(ctx context.Context, cfg aws.Config) (*iam.ListUsersOutput, error) {
-	client := iam.NewFromConfig(cfg)
+func (op *Api) ListUsers(ctx context.Context) (*iam.ListUsersOutput, error) {
 	input := &iam.ListUsersInput{}
-	return client.ListUsers(ctx, input)
+	return op.client.ListUsers(ctx, input)
 }
 
-func ListPolicies(ctx context.Context, cfg aws.Config) (*iam.ListPoliciesOutput, error) {
-	client := iam.NewFromConfig(cfg)
-
-	// Initialize the request input
+func (op *Api) ListPolicies(ctx context.Context) (*iam.ListPoliciesOutput, error) {
 	input := &iam.ListPoliciesInput{
 		Scope:    types.PolicyScopeTypeLocal,
 		MaxItems: aws.Int32(500),
 	}
 
-	// List policies with the current input
-	resp, err := client.ListPolicies(ctx, input)
+	resp, err := op.client.ListPolicies(ctx, input)
 	if err != nil {
 		return nil, err
 	}
@@ -194,31 +179,26 @@ func ListPolicies(ctx context.Context, cfg aws.Config) (*iam.ListPoliciesOutput,
 	return resp, nil
 }
 
-func ListGroups(ctx context.Context, cfg aws.Config) (*iam.ListGroupsOutput, error) {
-	client := iam.NewFromConfig(cfg)
+func (op *Api) ListGroups(ctx context.Context) (*iam.ListGroupsOutput, error) {
 	input := &iam.ListGroupsInput{}
-	return client.ListGroups(ctx, input)
+	return op.client.ListGroups(ctx, input)
 }
 
-func ListRoles(ctx context.Context, cfg aws.Config) (*iam.ListRolesOutput, error) {
-	client := iam.NewFromConfig(cfg)
+func (op *Api) ListRoles(ctx context.Context) (*iam.ListRolesOutput, error) {
 	input := &iam.ListRolesInput{}
-	return client.ListRoles(ctx, input)
+	return op.client.ListRoles(ctx, input)
 }
 
-func ListAttachedUserPolicies(ctx context.Context, cfg aws.Config, username string) ([]string, error) {
-	client := iam.NewFromConfig(cfg)
+func (op *Api) ListAttachedUserPolicies(ctx context.Context, username string) ([]string, error) {
 	var names []string
 
-	// List the user's attached policies
 	input := &iam.ListAttachedUserPoliciesInput{
 		UserName: aws.String(username),
 	}
 
-	// Call AWS API to get the list of inline policies for the user
-	resp, err := client.ListAttachedUserPolicies(ctx, input)
+	resp, err := op.client.ListAttachedUserPolicies(ctx, input)
 	if err != nil {
-		return nil, fmt.Errorf("unable to list inline policies for user %s: %v", username, err)
+		return nil, err
 	}
 
 	for _, p := range resp.AttachedPolicies {
@@ -228,31 +208,12 @@ func ListAttachedUserPolicies(ctx context.Context, cfg aws.Config, username stri
 	return names, nil
 }
 
-func ListUserInlinePolicies(ctx context.Context, cfg aws.Config, username string) ([]string, error) {
-	client := iam.NewFromConfig(cfg)
-
-	// List the user's attached policies
+func (op *Api) ListUserInlinePolicies(ctx context.Context, username string) ([]string, error) {
 	input := &iam.ListUserPoliciesInput{
 		UserName: aws.String(username),
 	}
 
-	// Call AWS API to get the list of inline policies for the user
-	resp, err := client.ListUserPolicies(ctx, input)
-	if err != nil {
-		return nil, fmt.Errorf("unable to list inline policies for user %s: %v", username, err)
-	}
-
-	return resp.PolicyNames, nil
-}
-
-func ListGroupInlinePolicies(ctx context.Context, cfg aws.Config, groupname string) ([]string, error) {
-	client := iam.NewFromConfig(cfg)
-
-	input := &iam.ListGroupPoliciesInput{
-		GroupName: aws.String(groupname),
-	}
-
-	resp, err := client.ListGroupPolicies(ctx, input)
+	resp, err := op.client.ListUserPolicies(ctx, input)
 	if err != nil {
 		return nil, err
 	}
@@ -260,17 +221,27 @@ func ListGroupInlinePolicies(ctx context.Context, cfg aws.Config, groupname stri
 	return resp.PolicyNames, nil
 }
 
-func ListAttachedGroupPolicies(ctx context.Context, cfg aws.Config, groupname string) ([]string, error) {
-	client := iam.NewFromConfig(cfg)
+func (op *Api) ListGroupInlinePolicies(ctx context.Context, groupname string) ([]string, error) {
+	input := &iam.ListGroupPoliciesInput{
+		GroupName: aws.String(groupname),
+	}
 
+	resp, err := op.client.ListGroupPolicies(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.PolicyNames, nil
+}
+
+func (op *Api) ListAttachedGroupPolicies(ctx context.Context, groupname string) ([]string, error) {
 	var names []string
 
-	// List the user's attached policies
 	input := &iam.ListAttachedGroupPoliciesInput{
 		GroupName: aws.String(groupname),
 	}
 
-	resp, err := client.ListAttachedGroupPolicies(ctx, input)
+	resp, err := op.client.ListAttachedGroupPolicies(ctx, input)
 	if err != nil {
 		return nil, err
 	}
@@ -282,14 +253,12 @@ func ListAttachedGroupPolicies(ctx context.Context, cfg aws.Config, groupname st
 	return names, nil
 }
 
-func ListRoleInlinePolicies(ctx context.Context, cfg aws.Config, rolename string) ([]string, error) {
-	client := iam.NewFromConfig(cfg)
-
+func (op *Api) ListRoleInlinePolicies(ctx context.Context, rolename string) ([]string, error) {
 	input := &iam.ListRolePoliciesInput{
 		RoleName: aws.String(rolename),
 	}
 
-	resp, err := client.ListRolePolicies(context.TODO(), input)
+	resp, err := op.client.ListRolePolicies(ctx, input)
 	if err != nil {
 		return nil, err
 	}
@@ -297,25 +266,17 @@ func ListRoleInlinePolicies(ctx context.Context, cfg aws.Config, rolename string
 	return resp.PolicyNames, nil
 }
 
-func ListAttachedRolePolicies(ctx context.Context, cfg aws.Config, rolename string) ([]string, error) {
-	client := iam.NewFromConfig(cfg)
-
+func (op *Api) ListAttachedRolePolicies(ctx context.Context, rolename string) ([]string, error) {
 	var names []string
-
-	// List the user's attached policies
 	input := &iam.ListAttachedRolePoliciesInput{
 		RoleName: aws.String(rolename),
 	}
-
-	resp, err := client.ListAttachedRolePolicies(context.TODO(), input)
+	resp, err := op.client.ListAttachedRolePolicies(ctx, input)
 	if err != nil {
-		log.Printf("Error fetching policies for user %s: %v", rolename, err)
-		return nil, nil
+		return nil, err
 	}
-
 	for _, p := range resp.AttachedPolicies {
 		names = append(names, *p.PolicyName)
 	}
-
 	return names, nil
 }

@@ -4,6 +4,8 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	internalaws "github.com/Permify/kivo/internal/aws"
 )
 
 var customPolicyOptionsStyle = lipgloss.NewStyle().Margin(1, 2)
@@ -19,16 +21,18 @@ func (i CustomPolicyOption) Description() string { return i.Desc }
 func (i CustomPolicyOption) FilterValue() string { return i.Name }
 
 type CustomPolicyOptionListModel struct {
+	api   *internalaws.Api
 	state *State
 	list  list.Model
 }
 
-func CustomPolicyOptionList(state *State) CustomPolicyOptionListModel {
+func CustomPolicyOptionList(api *internalaws.Api, state *State) CustomPolicyOptionListModel {
 	items := []list.Item{
 		CustomPolicyOption{Id: WithoutResourceSlug, Name: ReachableCustomPolicyOptions[WithoutResourceSlug].Name, Desc: ReachableCustomPolicyOptions[WithoutResourceSlug].Desc},
 		CustomPolicyOption{Id: WithResourceSlug, Name: ReachableCustomPolicyOptions[WithResourceSlug].Name, Desc: ReachableCustomPolicyOptions[WithResourceSlug].Desc},
 	}
 	var m CustomPolicyOptionListModel
+	m.api = api
 	m.state = state
 	m.list.Title = "Custom Policy Options"
 	m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)
@@ -48,7 +52,7 @@ func (m CustomPolicyOptionListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			option := m.list.SelectedItem().(CustomPolicyOption)
 			m.state.SetPolicyOption(&option)
-			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
+			return Switch(m.state.Next(m.api), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := customPolicyOptionsStyle.GetFrameSize()

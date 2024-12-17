@@ -7,7 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Permify/kivo/internal/aws"
+	internalaws "github.com/Permify/kivo/internal/aws"
 )
 
 var resourcesStyle = lipgloss.NewStyle().Margin(1, 2)
@@ -22,15 +22,16 @@ func (i Resource) Description() string { return i.Arn }
 func (i Resource) FilterValue() string { return i.Arn }
 
 type ResourceListModel struct {
+	api   *internalaws.Api
 	state *State
 	list  list.Model
 	err   error
 }
 
-func ResourceList(state *State) ResourceListModel {
+func ResourceList(api *internalaws.Api, state *State) ResourceListModel {
 	var items []list.Item
 
-	resources, err := aws.ListResources(state.GetService().Name)
+	resources, err := api.ListResources(state.GetService().Name)
 
 	for _, resource := range resources {
 		items = append(items, Resource{
@@ -41,6 +42,7 @@ func ResourceList(state *State) ResourceListModel {
 
 	var m ResourceListModel
 	m.err = err
+	m.api = api
 	m.state = state
 	m.list.Title = fmt.Sprintf("Resources for %s", state.GetService().Title())
 	m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)
@@ -65,7 +67,7 @@ func (m ResourceListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.state.SetService(nil)
 				m.state.SetPolicyOption(nil)
 			}
-			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
+			return Switch(m.state.Next(m.api), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := policiesStyle.GetFrameSize()

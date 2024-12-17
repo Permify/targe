@@ -176,7 +176,6 @@ func ListAllUserGroupPolicies(ctx context.Context, client *iam.Client, userName 
 }
 
 func ListAllUserPolicies(ctx context.Context, client *iam.Client, userName string) ([]string, error) {
-
 	inlineUserPolicies, err := ListUserPolicies(ctx, client, userName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list user policies: %v", err)
@@ -247,7 +246,7 @@ func main() {
 	}
 
 	// Write to file
-	err = os.WriteFile("policies.json", jsonData, 0644)
+	err = os.WriteFile("policies.json", jsonData, 0o644)
 	if err != nil {
 		fmt.Println("Error writing file:", err)
 		return

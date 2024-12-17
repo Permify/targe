@@ -5,6 +5,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
+	internalaws "github.com/Permify/kivo/internal/aws"
 	"github.com/Permify/kivo/internal/requirements/aws"
 )
 
@@ -20,12 +21,13 @@ func (i Service) Description() string { return i.Desc }
 func (i Service) FilterValue() string { return i.Name }
 
 type ServiceListModel struct {
+	api   *internalaws.Api
 	state *State
 	list  list.Model
 	err   error
 }
 
-func ServiceList(state *State) ServiceListModel {
+func ServiceList(api *internalaws.Api, state *State) ServiceListModel {
 	t := aws.Types{}
 	services, err := t.GetServices()
 
@@ -40,6 +42,7 @@ func ServiceList(state *State) ServiceListModel {
 
 	var m ServiceListModel
 	m.err = err
+	m.api = api
 	m.state = state
 	m.list.Title = "Services"
 	m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)
@@ -61,7 +64,7 @@ func (m ServiceListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				service := m.list.SelectedItem().(Service)
 				m.state.SetService(&service)
 			}
-			return Switch(m.state.Next(), m.list.Width(), m.list.Height())
+			return Switch(m.state.Next(m.api), m.list.Width(), m.list.Height())
 		}
 	case tea.WindowSizeMsg:
 		h, v := servicesStyle.GetFrameSize()
