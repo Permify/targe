@@ -41,14 +41,12 @@ func NewConfig() (*Config, error) {
 	err := viper.ReadInConfig()
 	if err != nil {
 		// If the error is due to the file not being found, create a new one
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+		var configFileNotFoundError viper.ConfigFileNotFoundError
+		if errors.As(err, &configFileNotFoundError) {
 			filePath := filepath.Join(configPath, "config.toml")
 			if err := writeDefaultConfig(filePath, cfg); err != nil {
 				return nil, fmt.Errorf("failed to create config file: %w", err)
 			}
-		} else {
-			// If it's a different error, return it
-			return nil, fmt.Errorf("failed to load server config: %w", err)
 		}
 	}
 

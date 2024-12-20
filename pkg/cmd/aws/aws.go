@@ -4,9 +4,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/Permify/kivo/internal/config"
-	"github.com/Permify/kivo/pkg/cmd/aws/groups"
-	"github.com/Permify/kivo/pkg/cmd/aws/roles"
-	"github.com/Permify/kivo/pkg/cmd/aws/users"
 )
 
 // NewAwsCommand -
@@ -17,9 +14,9 @@ func NewAwsCommand(cfg *config.Config) *cobra.Command {
 		Long:  ``,
 	}
 
-	command.AddCommand(users.NewUsersCommand(cfg))
-	command.AddCommand(roles.NewRolesCommand(cfg))
-	command.AddCommand(groups.NewGroupsCommand(cfg))
+	command.AddCommand(NewUsersCommand(cfg))
+	command.AddCommand(NewRolesCommand(cfg))
+	command.AddCommand(NewGroupsCommand(cfg))
 
 	return command
 }
