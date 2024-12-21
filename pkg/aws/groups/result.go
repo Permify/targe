@@ -2,13 +2,14 @@ package groups
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
+
+	"github.com/Permify/kivo/pkg/aws/models"
 )
 
 type Result struct {
@@ -17,30 +18,29 @@ type Result struct {
 	styles     *Styles
 	form       *huh.Form
 	width      int
+	value      *bool
+	error      error
 }
 
 func NewResult(controller *Controller) Result {
-	m := Result{width: maxWidth}
-	m.lg = lipgloss.DefaultRenderer()
-	m.styles = NewStyles(m.lg)
-	m.controller = controller
+	// Initialize the Result with default values
+	result := Result{
+		width:      maxWidth,
+		lg:         lipgloss.DefaultRenderer(),
+		controller: controller,
+	}
 
-	m.form = huh.NewForm(
-		huh.NewGroup(
-			huh.NewConfirm().
-				Key("done").
-				Title("All done?").
-				Validate(func(v bool) error {
-					return nil
-				}).
-				Affirmative("Yes").
-				Negative("No"),
-		),
-	).
-		WithWidth(45).
-		WithShowHelp(false).
-		WithShowErrors(false)
-	return m
+	// Initialize styles
+	result.styles = NewStyles(result.lg)
+
+	// Initialize value pointer
+	initialValue := false
+	result.value = &initialValue
+
+	// Configure the form
+	result.form = createForm(result.value)
+
+	return result
 }
 
 func (m Result) Init() tea.Cmd {
@@ -57,10 +57,9 @@ func min(x, y int) int {
 func (m Result) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.width = min(msg.Width, maxWidth) - m.styles.Base.GetHorizontalFrameSize()
+		m.width = min(msg.Width, 80) - m.styles.Base.GetHorizontalFrameSize()
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "esc", "ctrl+c", "q":
+		if msg.String() == "esc" || msg.String() == "ctrl+c" || msg.String() == "q" {
 			return m, tea.Quit
 		}
 	}
@@ -74,90 +73,114 @@ func (m Result) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 	}
 
+	// Handle form completion
 	if m.form.State == huh.StateCompleted {
-		// Quit when the form is done.
-		cmds = append(cmds, tea.Quit)
+		if *m.value {
+			if err := m.controller.Done(); err != nil {
+				// Handle error without quitting
+				m.error = err
+				return m, nil // Return updated model without quitting
+			}
+		} else {
+			cmds = append(cmds, tea.Quit)
+		}
 	}
 
 	return m, tea.Batch(cmds...)
 }
 
 func (m Result) View() string {
-	s := m.styles
-
-	switch m.form.State {
-	case huh.StateCompleted:
-		return s.Status.Margin(0, 1).Padding(1, 2).Width(48).Render("DONE") + "\n\n"
-	default:
-
-		var rows [][]string
-
-		if m.controller.State.group != nil {
-			rows = append(rows, []string{"Group", m.controller.State.group.Name, m.controller.State.group.Arn})
-		}
-
-		if m.controller.State.operation != nil {
-			rows = append(rows, []string{"Operation", m.controller.State.operation.Name, m.controller.State.operation.Desc})
-		}
-
-		if m.controller.State.service != nil {
-			rows = append(rows, []string{"Service", m.controller.State.service.Name, m.controller.State.service.Desc})
-		}
-
-		if m.controller.State.resource != nil {
-			rows = append(rows, []string{"Resource", m.controller.State.resource.Name, m.controller.State.resource.Arn})
-		}
-
-		if m.controller.State.policy != nil {
-			if len(m.controller.State.policy.Document) > 0 {
-				// Marshal with indent
-				indentedJSON, err := json.MarshalIndent(m.controller.State.policy.Document, "", "  ")
-				if err != nil {
-					fmt.Println("Error:", err)
-				}
-
-				rows = append(rows, []string{"Policy", m.controller.State.policy.Name, string(indentedJSON)})
-			} else {
-				rows = append(rows, []string{"Policy", m.controller.State.policy.Name, m.controller.State.policy.Arn})
-			}
-		}
-
-		t := table.New().
-			Border(lipgloss.HiddenBorder()).
-			BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("99"))).
-			StyleFunc(func(row, col int) lipgloss.Style {
-				if col == 0 {
-					return m.styles.Base.
-						Foreground(blue).
-						Bold(true)
-				}
-				return m.styles.Base
-			}).
-			Rows(rows...)
-
-		v := strings.TrimSuffix(m.form.View(), "\n\n")
-		form := m.lg.NewStyle().Margin(1, 0).Render(v)
-
-		errors := m.form.Errors()
-		header := m.appBoundaryView("Overview")
-		if len(errors) > 0 {
-			header = m.appErrorBoundaryView(m.errorView())
-		}
-		body := lipgloss.JoinVertical(lipgloss.Top, t.Render(), form)
-
-		footer := m.appBoundaryView(m.form.Help().ShortHelpView(m.form.KeyBinds()))
-		if len(errors) > 0 {
-			footer = m.appErrorBoundaryView("")
-		}
-
-		return s.Base.Render(header + "\n" + body + "\n\n" + footer)
+	if m.form.State == huh.StateCompleted && m.error == nil {
+		return m.styles.Status.Margin(0, 1).Padding(1, 2).Width(48).Render("DONE") + "\n\n"
 	}
+
+	rows := m.collectOverviewRows()
+	t := m.createTable(rows)
+	formView := m.lg.NewStyle().Margin(1, 0).Render(strings.TrimSuffix(m.form.View(), "\n\n"))
+	header := m.renderHeader()
+	footer := m.renderFooter()
+
+	body := lipgloss.JoinVertical(lipgloss.Top, t.Render(), formView)
+
+	// Add error message if present
+	if m.error != nil {
+		errorView := m.styles.ErrorHeaderText.Render(m.error.Error())
+		body = lipgloss.JoinVertical(lipgloss.Top, body, errorView)
+	}
+
+	return m.styles.Base.Render(header + "\n" + body + "\n\n" + footer)
+}
+
+func (m Result) collectOverviewRows() [][]string {
+	var rows [][]string
+	state := m.controller.State
+
+	if state.group != nil {
+		rows = append(rows, []string{"Group", state.group.Name, state.group.Arn})
+	}
+	if state.operation != nil {
+		rows = append(rows, []string{"Operation", state.operation.Name, state.operation.Desc})
+	}
+	if state.group != nil {
+		rows = append(rows, []string{"Group", state.group.Name, state.group.Arn})
+	}
+	if state.service != nil {
+		rows = append(rows, []string{"Service", state.service.Name, state.service.Desc})
+	}
+	if state.resource != nil {
+		rows = append(rows, []string{"Resource", state.resource.Name, state.resource.Arn})
+	}
+	if state.policy != nil {
+		rows = append(rows, m.formatPolicyRow(state.policy))
+	}
+
+	return rows
+}
+
+func (m Result) formatPolicyRow(policy *models.Policy) []string {
+	if len(policy.Document) > 0 {
+		indentedJSON, err := json.MarshalIndent(policy.Document, "", "  ")
+		if err != nil {
+			return []string{"Policy", policy.Name, policy.Arn}
+		}
+		return []string{"Policy", policy.Name, string(indentedJSON)}
+	}
+	return []string{"Policy", policy.Name, policy.Arn}
+}
+
+func (m Result) createTable(rows [][]string) *table.Table {
+	return table.New().
+		Border(lipgloss.HiddenBorder()).
+		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("99"))).
+		StyleFunc(func(row, col int) lipgloss.Style {
+			if col == 0 {
+				return m.styles.Base.Foreground(lipgloss.Color("205")).Bold(true)
+			}
+			return m.styles.Base
+		}).
+		Rows(rows...)
+}
+
+func (m Result) renderHeader() string {
+	errors := m.form.Errors()
+	if len(errors) > 0 {
+		return m.appErrorBoundaryView(m.errorView())
+	}
+	return m.appBoundaryView("Overview")
+}
+
+func (m Result) renderFooter() string {
+	errors := m.form.Errors()
+	if len(errors) > 0 {
+		return m.appErrorBoundaryView("")
+	}
+	return m.appBoundaryView(m.form.Help().ShortHelpView(m.form.KeyBinds()))
 }
 
 func (m Result) errorView() string {
 	var s string
 	for _, err := range m.form.Errors() {
-		s += err.Error()
+		s += err.Error() + "\n"
 	}
 	return s
 }
@@ -168,7 +191,7 @@ func (m Result) appBoundaryView(text string) string {
 		lipgloss.Left,
 		m.styles.HeaderText.Render(text),
 		lipgloss.WithWhitespaceChars("/"),
-		lipgloss.WithWhitespaceForeground(blue),
+		lipgloss.WithWhitespaceForeground(lipgloss.Color("205")),
 	)
 }
 
@@ -178,6 +201,25 @@ func (m Result) appErrorBoundaryView(text string) string {
 		lipgloss.Left,
 		m.styles.ErrorHeaderText.Render(text),
 		lipgloss.WithWhitespaceChars("/"),
-		lipgloss.WithWhitespaceForeground(red),
+		lipgloss.WithWhitespaceForeground(lipgloss.Color("160")),
 	)
+}
+
+func createForm(value *bool) *huh.Form {
+	confirm := huh.NewConfirm().
+		Key("done").
+		Title("All done?").
+		Validate(func(v bool) error {
+			return nil
+		}).
+		Affirmative("Yes").
+		Negative("No").
+		Value(value)
+
+	return huh.NewForm(
+		huh.NewGroup(confirm),
+	).
+		WithWidth(45).
+		WithShowHelp(false).
+		WithShowErrors(false)
 }

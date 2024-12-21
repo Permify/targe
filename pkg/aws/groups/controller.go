@@ -2,6 +2,8 @@ package groups
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"slices"
 
 	"github.com/charmbracelet/bubbles/list"
@@ -294,6 +296,29 @@ func (c *Controller) Next() tea.Model {
 
 	// Default fallback
 	return NewResult(c)
+}
+
+func (c *Controller) Done() error {
+	switch c.State.operation.Id {
+	case AttachPolicySlug:
+		return c.api.AttachPolicyToGroup(context.Background(), c.State.GetPolicy().Arn, c.State.GetGroup().Name)
+	case DetachPolicySlug:
+		return c.api.DetachPolicyFromGroup(context.Background(), c.State.GetPolicy().Arn, c.State.GetGroup().Name)
+	case AttachCustomPolicySlug:
+		jsonBytes, err := json.Marshal(c.State.GetPolicy().Document)
+		if err != nil {
+			return err
+		}
+		output, err := c.api.CreatePolicy(context.Background(), c.State.GetPolicy().Name, string(jsonBytes))
+		if err != nil {
+			return err
+		}
+		return c.api.AttachPolicyToGroup(context.Background(), *output.Policy.Arn, c.State.GetGroup().Name)
+	default:
+		return errors.New("operation not supported")
+	}
+
+	return nil
 }
 
 // Switch handles window size changes and updates the model accordingly.
