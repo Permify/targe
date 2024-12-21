@@ -2,6 +2,7 @@ package users
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -62,6 +63,11 @@ func (m Result) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.String() == "esc" || msg.String() == "ctrl+c" || msg.String() == "q" {
 			return m, tea.Quit
 		}
+
+		// Handle "Enter" for exit confirmation
+		if m.form.State == huh.StateCompleted && msg.String() == "enter" {
+			return m, tea.Quit
+		}
 	}
 
 	var cmds []tea.Cmd
@@ -91,9 +97,28 @@ func (m Result) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Result) View() string {
 	if m.form.State == huh.StateCompleted && m.error == nil {
-		return m.styles.Status.Margin(0, 1).Padding(1, 2).Width(48).Render("DONE") + "\n\n"
+		// Success Message with Exit Footer
+		successMessage := fmt.Sprintf(
+			"\n%s\n\n%s\n",
+			lipgloss.NewStyle().
+				Bold(true).
+				Foreground(lipgloss.Color("10")).
+				Render("✔ Operation executed successfully!"),
+			lipgloss.NewStyle().
+				Foreground(lipgloss.Color("7")).
+				Italic(true).
+				Render("The requested AWS IAM operation has been completed."),
+		)
+
+		exitFooter := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("8")).
+			Italic(true).
+			Render("Press Enter to exit.")
+
+		return successMessage + "\n" + exitFooter
 	}
 
+	// When not in completed state, display other UI elements
 	rows := m.collectOverviewRows()
 	t := m.createTable(rows)
 	formView := m.lg.NewStyle().Margin(1, 0).Render(strings.TrimSuffix(m.form.View(), "\n\n"))
@@ -104,7 +129,17 @@ func (m Result) View() string {
 
 	// Add error message if present
 	if m.error != nil {
-		errorView := m.styles.ErrorHeaderText.Render(m.error.Error())
+		errorView := fmt.Sprintf(
+			"\n%s\n\n%s\n",
+			lipgloss.NewStyle().
+				Bold(true).
+				Foreground(lipgloss.Color("9")).
+				Render("✖ An error occurred"),
+			lipgloss.NewStyle().
+				Foreground(lipgloss.Color("1")).
+				Italic(true).
+				Render(m.error.Error()),
+		)
 		body = lipgloss.JoinVertical(lipgloss.Top, body, errorView)
 	}
 
