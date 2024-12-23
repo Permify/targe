@@ -7,7 +7,7 @@ import (
 
 func RegisterRootFlags(flags *pflag.FlagSet) {
 	var err error
-	if err = viper.BindPFlag("ticket", flags.Lookup("ticket")); err != nil {
+	if err = viper.BindPFlag("m", flags.Lookup("m")); err != nil {
 		panic(err)
 	}
 }

@@ -98,7 +98,7 @@ func NewRootCommand() *cobra.Command {
 
 	f := root.Flags()
 
-	f.String("ticket", "", "ticket")
+	f.String("m", "", "message")
 
 	// SilenceUsage is set to true to suppress usage when an error occurs
 	root.SilenceUsage = true
@@ -118,7 +118,7 @@ func NewRootCommand() *cobra.Command {
 
 func r(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
-		ticket := viper.GetString("ticket")
+		ticket := viper.GetString("m")
 
 		gptResponse, err := ai.UserPrompt(cfg.OpenaiApiKey, ticket)
 		if err != nil {
