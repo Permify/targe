@@ -138,7 +138,7 @@ func roles(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 			state.SetPolicyOption(&op)
 		}
 
-		controller := pkgroles.NewController(api, state)
+		controller := pkgroles.NewController(api, cfg.OpenaiApiKey, state)
 
 		p := tea.NewProgram(RootModel(controller.Next()), tea.WithAltScreen())
 		if _, err := p.Run(); err != nil {

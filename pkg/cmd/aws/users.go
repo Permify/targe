@@ -162,7 +162,7 @@ func users(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 			state.SetPolicyOption(&op)
 		}
 
-		controller := pkgusers.NewController(api, state)
+		controller := pkgusers.NewController(api, cfg.OpenaiApiKey, state)
 
 		p := tea.NewProgram(RootModel(controller.Next()), tea.WithAltScreen())
 		if _, err := p.Run(); err != nil {

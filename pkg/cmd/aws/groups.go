@@ -137,7 +137,7 @@ func groups(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 			state.SetPolicyOption(&op)
 		}
 
-		controller := pkggroups.NewController(api, state)
+		controller := pkggroups.NewController(api, cfg.OpenaiApiKey, state)
 
 		p := tea.NewProgram(RootModel(controller.Next()), tea.WithAltScreen())
 		if _, err := p.Run(); err != nil {

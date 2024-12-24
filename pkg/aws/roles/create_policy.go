@@ -9,7 +9,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Permify/kivo/pkg/cmd/ai"
+	"github.com/Permify/kivo/internal/ai"
+	"github.com/Permify/kivo/pkg/aws/models"
 )
 
 type CreatePolicy struct {
@@ -76,7 +77,7 @@ func (m CreatePolicy) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				m.message = m.textarea.Value()
 
-				policy, err := ai.GeneratePolicy("", m.message)
+				policy, err := ai.GeneratePolicy(m.controller.openAiApiKey, m.message)
 				if err != nil {
 					m.err = err
 				}
@@ -90,13 +91,11 @@ func (m CreatePolicy) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.textarea.Reset()
 				m.viewport.GotoBottom()
 
-				//var result map[string]interface{}
-				//m.err = json.Unmarshal([]byte(jsonStr), &result)
-				//m.state.SetPolicy(&Policy{
-				//	Arn:      "new",
-				//	Name:     "New",
-				//	Document: result,
-				//})
+				m.controller.State.SetPolicy(&models.Policy{
+					Arn:      "new",
+					Name:     "New",
+					Document: string(policyJson),
+				})
 			}
 		}
 	}

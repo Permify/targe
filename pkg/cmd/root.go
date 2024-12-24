@@ -11,8 +11,9 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/Permify/kivo/internal/ai"
+
 	"github.com/Permify/kivo/internal/config"
-	"github.com/Permify/kivo/pkg/cmd/ai"
 	"github.com/Permify/kivo/pkg/cmd/aws"
 )
 
@@ -108,19 +109,17 @@ func NewRootCommand() *cobra.Command {
 	}
 
 	awsCommand := aws.NewAwsCommand(cfg)
-	aiCommand := ai.NewAICommand(cfg)
 
 	root.AddCommand(awsCommand)
-	root.AddCommand(aiCommand)
 
 	return root
 }
 
 func r(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
-		ticket := viper.GetString("m")
+		message := viper.GetString("m")
 
-		gptResponse, err := ai.UserPrompt(cfg.OpenaiApiKey, ticket)
+		gptResponse, err := ai.UserPrompt(cfg.OpenaiApiKey, message)
 		if err != nil {
 			return err
 		}

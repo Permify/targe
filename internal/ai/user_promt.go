@@ -201,13 +201,9 @@ func GenerateCLICommand(response GPTResponse) string {
 		flags = append(flags, fmt.Sprintf("--service %s", response.RequestedResourceType))
 	}
 
-	// TODO: policy option?
-	//if !response.IsManagedPolicy {
-	//	flags = append(flags, "--policy-option custom")
-	//}
-
 	if len(flags) == 0 {
 		return "No valid flags generated from GPT response."
 	}
+
 	return fmt.Sprintf("aws %s", strings.Join(flags, " "))
 }

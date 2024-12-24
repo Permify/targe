@@ -2,7 +2,6 @@ package users
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"slices"
 
@@ -15,14 +14,16 @@ import (
 )
 
 type Controller struct {
-	api   *aws.Api
-	State *State
+	api          *aws.Api
+	openAiApiKey string
+	State        *State
 }
 
-func NewController(api *aws.Api, state *State) *Controller {
+func NewController(api *aws.Api, openaiApiKey string, state *State) *Controller {
 	return &Controller{
-		api:   api,
-		State: state,
+		api:          api,
+		openAiApiKey: openaiApiKey,
+		State:        state,
 	}
 }
 
@@ -390,11 +391,7 @@ func (c *Controller) Done() error {
 	case RemoveFromGroupSlug.String():
 		return c.api.RemoveUserFromGroup(context.Background(), c.State.GetUser().Name, c.State.GetGroup().Name)
 	case AttachCustomPolicySlug.String():
-		jsonBytes, err := json.Marshal(c.State.GetPolicy().Document)
-		if err != nil {
-			return err
-		}
-		output, err := c.api.CreatePolicy(context.Background(), c.State.GetPolicy().Name, string(jsonBytes))
+		output, err := c.api.CreatePolicy(context.Background(), c.State.GetPolicy().Name, c.State.GetPolicy().Document)
 		if err != nil {
 			return err
 		}

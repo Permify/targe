@@ -3,7 +3,7 @@ package models
 type Policy struct {
 	Arn      string
 	Name     string
-	Document map[string]interface{}
+	Document string
 }
 
 func (i Policy) Title() string       { return i.Name }
