@@ -93,16 +93,12 @@ func groups(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 
 		if operation != "" {
 			// Check if the operation exists in the ReachableOperations map
-			op, exists := pkggroups.ReachableOperations[operation]
+			op, exists := pkggroups.ReachableOperations[pkggroups.OperationType(operation)]
 			if !exists {
 				return fmt.Errorf("Operation '%s' does not exist in ReachableOperations\n", operation)
 			}
 
-			state.SetOperation(&models.Operation{
-				Id:   op.Id,
-				Name: op.Name,
-				Desc: op.Desc,
-			})
+			state.SetOperation(&op)
 		}
 
 		if policy != "" {
@@ -133,15 +129,12 @@ func groups(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 
 		if policyOption != "" {
 			// Check if the operation exists in the ReachableOperations map
-			op, exists := pkggroups.ReachablePolicyOptions[policyOption]
+			op, exists := pkggroups.ReachablePolicyOptions[pkggroups.PolicyOptionType(policyOption)]
 			if !exists {
 				return fmt.Errorf("Policy options '%s' does not exist in ReachableCustomPolicyOptions\n", policyOption)
 			}
 
-			state.SetPolicyOption(&models.PolicyOption{
-				Name: op.Name,
-				Desc: op.Desc,
-			})
+			state.SetPolicyOption(&op)
 		}
 
 		controller := pkggroups.NewController(api, state)

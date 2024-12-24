@@ -107,16 +107,12 @@ func users(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 
 		if operation != "" {
 			// Check if the operation exists in the ReachableOperations map
-			op, exists := pkgusers.ReachableOperations[operation]
+			op, exists := pkgusers.ReachableOperations[pkgusers.OperationType(operation)]
 			if !exists {
 				return fmt.Errorf("Operation '%s' does not exist in ReachableOperations\n", operation)
 			}
 
-			state.SetOperation(&models.Operation{
-				Id:   op.Id,
-				Name: op.Name,
-				Desc: op.Desc,
-			})
+			state.SetOperation(&op)
 		}
 
 		if policy != "" {
@@ -158,15 +154,12 @@ func users(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 		}
 
 		if policyOption != "" {
-			op, exists := pkgusers.ReachablePolicyOptions[policyOption]
+			op, exists := pkgusers.ReachablePolicyOptions[pkgusers.PolicyOptionType(policyOption)]
 			if !exists {
 				return fmt.Errorf("Policy options '%s' does not exist in ReachableCustomPolicyOptions\n", policyOption)
 			}
 
-			state.SetPolicyOption(&models.PolicyOption{
-				Name: op.Name,
-				Desc: op.Desc,
-			})
+			state.SetPolicyOption(&op)
 		}
 
 		controller := pkgusers.NewController(api, state)

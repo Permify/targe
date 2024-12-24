@@ -60,9 +60,9 @@ type OperationLoadedMsg struct{ List []list.Item }
 func (c *Controller) LoadOperations() tea.Cmd {
 	return func() tea.Msg {
 		items := []list.Item{
-			models.Operation{Id: AttachPolicySlug, Name: ReachableOperations[AttachPolicySlug].Name, Desc: ReachableOperations[AttachPolicySlug].Desc},
-			models.Operation{Id: DetachPolicySlug, Name: ReachableOperations[DetachPolicySlug].Name, Desc: ReachableOperations[DetachPolicySlug].Desc},
-			models.Operation{Id: AttachCustomPolicySlug, Name: ReachableOperations[AttachCustomPolicySlug].Name, Desc: ReachableOperations[AttachCustomPolicySlug].Desc},
+			models.Operation{Id: AttachPolicySlug.String(), Name: ReachableOperations[AttachPolicySlug].Name, Desc: ReachableOperations[AttachPolicySlug].Desc},
+			models.Operation{Id: DetachPolicySlug.String(), Name: ReachableOperations[DetachPolicySlug].Name, Desc: ReachableOperations[DetachPolicySlug].Desc},
+			models.Operation{Id: AttachCustomPolicySlug.String(), Name: ReachableOperations[AttachCustomPolicySlug].Name, Desc: ReachableOperations[AttachCustomPolicySlug].Desc},
 		}
 		return OperationLoadedMsg{List: items}
 	}
@@ -138,7 +138,7 @@ func (c *Controller) LoadPolicies() tea.Cmd {
 		}
 
 		switch c.State.operation.Id {
-		case AttachPolicySlug:
+		case AttachPolicySlug.String():
 			for _, policy := range policies.Policies {
 				if !slices.Contains(attachedPolicies, *policy.PolicyName) {
 					items = append(items, models.Policy{
@@ -156,7 +156,7 @@ func (c *Controller) LoadPolicies() tea.Cmd {
 					})
 				}
 			}
-		case DetachPolicySlug:
+		case DetachPolicySlug.String():
 			inlinePolicies, err := c.api.ListRoleInlinePolicies(context.Background(), c.State.role.Name)
 			if err != nil {
 				return FailedMsg{Err: err}
@@ -198,49 +198,66 @@ type PolicyOptionLoadedMsg struct{ List []list.Item }
 func (c *Controller) LoadPolicyOptions() tea.Cmd {
 	return func() tea.Msg {
 		items := []list.Item{
-			models.PolicyOption{Id: WithoutResourceSlug, Name: ReachablePolicyOptions[WithoutResourceSlug].Name, Desc: ReachablePolicyOptions[WithoutResourceSlug].Desc},
-			models.PolicyOption{Id: WithResourceSlug, Name: ReachablePolicyOptions[WithResourceSlug].Name, Desc: ReachablePolicyOptions[WithResourceSlug].Desc},
+			models.PolicyOption{Id: WithoutResourceSlug.String(), Name: ReachablePolicyOptions[WithoutResourceSlug].Name, Desc: ReachablePolicyOptions[WithoutResourceSlug].Desc},
+			models.PolicyOption{Id: WithResourceSlug.String(), Name: ReachablePolicyOptions[WithResourceSlug].Name, Desc: ReachablePolicyOptions[WithResourceSlug].Desc},
 		}
 		return PolicyOptionLoadedMsg{List: items}
 	}
 }
 
+type OperationType string
+
 // Constants representing role actions and their slugs
 const (
-	AttachPolicySlug       = "attach_policy"
-	DetachPolicySlug       = "detach_policy"
-	AttachCustomPolicySlug = "attach_custom_policy"
+	AttachPolicySlug       OperationType = "attach_policy"
+	DetachPolicySlug       OperationType = "detach_policy"
+	AttachCustomPolicySlug OperationType = "attach_custom_policy"
 )
 
+func (o OperationType) String() string {
+	return string(o)
+}
+
 // ReachableOperations Predefined list of actions with their names and descriptions
-var ReachableOperations = map[string]models.Operation{
+var ReachableOperations = map[OperationType]models.Operation{
 	AttachPolicySlug: {
+		Id:   AttachPolicySlug.String(),
 		Name: "Attach Policy (attach_policy)",
 		Desc: "Assign a policy to the role.",
 	},
 	DetachPolicySlug: {
+		Id:   DetachPolicySlug.String(),
 		Name: "Detach Policy (detach_policy)",
 		Desc: "Remove a policy from the role.",
 	},
 	AttachCustomPolicySlug: {
+		Id:   AttachCustomPolicySlug.String(),
 		Name: "Attach Custom Policy (attach_custom_policy)",
 		Desc: "Create and attach a custom policy.",
 	},
 }
 
+type PolicyOptionType string
+
 // Constants representing custom policy options and their slugs
 const (
-	WithoutResourceSlug = "without_resource"
-	WithResourceSlug    = "with_resource"
+	WithoutResourceSlug PolicyOptionType = "without_resource"
+	WithResourceSlug    PolicyOptionType = "with_resource"
 )
 
+func (o PolicyOptionType) String() string {
+	return string(o)
+}
+
 // ReachablePolicyOptions Predefined list of custom policy options with their names and descriptions
-var ReachablePolicyOptions = map[string]models.PolicyOption{
+var ReachablePolicyOptions = map[PolicyOptionType]models.PolicyOption{
 	WithoutResourceSlug: {
+		Id:   WithoutResourceSlug.String(),
 		Name: "Without Resource (without_resource)",
 		Desc: "Applies globally without a resource.",
 	},
 	WithResourceSlug: {
+		Id:   WithResourceSlug.String(),
 		Name: "With Resource (with_resource)",
 		Desc: "Scoped to a specific resource.",
 	},
@@ -259,7 +276,7 @@ func (c *Controller) Next() tea.Model {
 	}
 
 	// Handle specific action: AttachCustomPolicySlug
-	if c.State.operation.Id == AttachCustomPolicySlug {
+	if c.State.operation.Id == AttachCustomPolicySlug.String() {
 
 		if c.State.policy != nil {
 			return NewResult(c)
@@ -268,10 +285,10 @@ func (c *Controller) Next() tea.Model {
 		// Handle case where a policy option is selected
 		if c.State.policyOption != nil {
 			switch c.State.policyOption.Id {
-			case WithoutResourceSlug:
+			case WithoutResourceSlug.String():
 				return NewCreatePolicy(c)
 
-			case WithResourceSlug:
+			case WithResourceSlug.String():
 				// Handle case where resource is defined
 				if c.State.resource != nil {
 					return NewCreatePolicy(c)
@@ -301,11 +318,11 @@ func (c *Controller) Next() tea.Model {
 
 func (c *Controller) Done() error {
 	switch c.State.operation.Id {
-	case AttachPolicySlug:
+	case AttachPolicySlug.String():
 		return c.api.AttachPolicyToRole(context.Background(), c.State.GetPolicy().Arn, c.State.GetRole().Name)
-	case DetachPolicySlug:
+	case DetachPolicySlug.String():
 		return c.api.DetachPolicyFromRole(context.Background(), c.State.GetPolicy().Arn, c.State.GetRole().Name)
-	case AttachCustomPolicySlug:
+	case AttachCustomPolicySlug.String():
 		jsonBytes, err := json.Marshal(c.State.GetPolicy().Document)
 		if err != nil {
 			return err
