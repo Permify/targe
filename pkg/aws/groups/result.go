@@ -1,7 +1,6 @@
 package groups
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -174,11 +173,7 @@ func (m Result) collectOverviewRows() [][]string {
 
 func (m Result) formatPolicyRow(policy *models.Policy) []string {
 	if len(policy.Document) > 0 {
-		indentedJSON, err := json.MarshalIndent(policy.Document, "", "  ")
-		if err != nil {
-			return []string{"Policy", policy.Name, policy.Arn}
-		}
-		return []string{"Policy", policy.Name, string(indentedJSON)}
+		return []string{"Policy", policy.Name, string(policy.Document)}
 	}
 	return []string{"Policy", policy.Name, policy.Arn}
 }
@@ -226,7 +221,7 @@ func (m Result) appBoundaryView(text string) string {
 		lipgloss.Left,
 		m.styles.HeaderText.Render(text),
 		lipgloss.WithWhitespaceChars("/"),
-		lipgloss.WithWhitespaceForeground(lipgloss.Color("205")),
+		lipgloss.WithWhitespaceForeground(indigo),
 	)
 }
 
@@ -236,7 +231,7 @@ func (m Result) appErrorBoundaryView(text string) string {
 		lipgloss.Left,
 		m.styles.ErrorHeaderText.Render(text),
 		lipgloss.WithWhitespaceChars("/"),
-		lipgloss.WithWhitespaceForeground(lipgloss.Color("160")),
+		lipgloss.WithWhitespaceForeground(indigo),
 	)
 }
 

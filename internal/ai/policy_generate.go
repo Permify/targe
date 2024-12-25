@@ -236,15 +236,21 @@ func toStringSlice(v interface{}) []string {
 	}
 }
 
-func GeneratePolicy(apiKey, prompt string) (IAMPolicy, error) {
+func GeneratePolicy(apiKey, prompt string, resourceArn *string) (IAMPolicy, error) {
 	url := "https://api.openai.com/v1/chat/completions"
+
+	// Include resourceArn information in the user prompt.
+	resourceArnInfo := ""
+	if resourceArn != nil {
+		resourceArnInfo = fmt.Sprintf("\nThe resource ARN is: %s", *resourceArn)
+	}
 
 	payload := map[string]interface{}{
 		"model":       "gpt-4o",
 		"temperature": 0.1,
 		"messages": []map[string]string{
 			{"role": "system", "content": "You are an assistant that produces IAM policies as JSON."},
-			{"role": "user", "content": prompt},
+			{"role": "user", "content": fmt.Sprintf("%s%s", prompt, resourceArnInfo)},
 		},
 		"response_format": map[string]interface{}{
 			"type":        "json_schema",

@@ -2,10 +2,11 @@ package roles
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
+	"strings"
 
-	"github.com/charmbracelet/bubbles/textarea"
-	"github.com/charmbracelet/bubbles/viewport"
+	"github.com/charmbracelet/huh"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
@@ -15,102 +16,211 @@ import (
 
 type CreatePolicy struct {
 	controller  *Controller
-	message     string
+	lg          *lipgloss.Renderer
+	styles      *Styles
+	form        *huh.Form
 	senderStyle lipgloss.Style
-	viewport    viewport.Model
-	textarea    textarea.Model
 	err         error
+	width       int
+	message     *string
+	done        *bool
+	result      string
 }
 
 func NewCreatePolicy(controller *Controller) CreatePolicy {
-	ta := textarea.New()
-	ta.Placeholder = "Send a message..."
-	ta.Focus()
+	m := CreatePolicy{controller: controller, width: maxWidth}
+	m.lg = lipgloss.DefaultRenderer()
+	m.styles = NewStyles(m.lg)
 
-	ta.Prompt = "┃ "
-	ta.CharLimit = 280
+	doneInitialValue := false
+	m.done = &doneInitialValue
 
-	ta.SetWidth(30)
-	ta.SetHeight(3)
+	messageInitialValue := ""
+	m.message = &messageInitialValue
 
-	// Remove cursor line styling
-	ta.FocusedStyle.CursorLine = lipgloss.NewStyle()
+	m.form = huh.NewForm(
+		huh.NewGroup(
+			huh.NewText().Key("message").
+				Title("Describe Your Policy").
+				Value(m.message),
 
-	ta.ShowLineNumbers = false
+			huh.NewConfirm().
+				Key("done").
+				Title("All done?").
+				Value(m.done).
+				Affirmative("Yes").
+				Negative("Refresh"),
+		),
+	).
+		WithWidth(45).
+		WithShowHelp(false).
+		WithShowErrors(false)
 
-	vp := viewport.New(30, 15)
-	vp.SetContent(`Type a message and press Enter to send.`)
-
-	ta.KeyMap.InsertNewline.SetEnabled(false)
-
-	return CreatePolicy{
-		controller:  controller,
-		viewport:    vp,
-		textarea:    ta,
-		senderStyle: lipgloss.NewStyle().Foreground(lipgloss.Color("5")),
-	}
+	return m
 }
 
 func (m CreatePolicy) Init() tea.Cmd {
-	return textarea.Blink
+	return m.form.Init()
 }
 
 func (m CreatePolicy) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var (
-		tiCmd tea.Cmd
-		vpCmd tea.Cmd
-	)
-
-	m.textarea, tiCmd = m.textarea.Update(msg)
-	m.viewport, vpCmd = m.viewport.Update(msg)
-
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c":
-			return m, tea.Quit
-		case "enter":
+	case tea.WindowSizeMsg:
+		m.width = min(msg.Width, maxWidth) - m.styles.Base.GetHorizontalFrameSize()
 
-			if m.controller.State.policy != nil {
+	case tea.KeyMsg:
+
+		if msg.String() == "esc" || msg.String() == "ctrl+c" || msg.String() == "q" {
+			return m, tea.Quit
+		}
+
+		// Check if the "Refresh" or "Done" button was selected
+		if msg.String() == "enter" {
+			if m.done != nil && *m.done {
 				return Switch(m.controller.Next(), 0, 0)
 			} else {
+				var resourceArn *string = nil
+				if m.controller.State.GetService() != nil {
+					resourceArn = &m.controller.State.GetResource().Arn
+				}
 
-				m.message = m.textarea.Value()
+				if m.message == nil {
+					m.err = errors.New("Please provide a message")
+				}
 
-				policy, err := ai.GeneratePolicy(m.controller.openAiApiKey, m.message)
+				policy, err := ai.GeneratePolicy(m.controller.openAiApiKey, *m.message, resourceArn)
 				if err != nil {
 					m.err = err
 				}
 
-				policyJson, err := json.Marshal(policy)
+				policyJson, err := json.MarshalIndent(policy, "", "\t")
 				if err != nil {
 					m.err = err
 				}
 
-				m.viewport.SetContent(string(policyJson))
-				m.textarea.Reset()
-				m.viewport.GotoBottom()
+				m.result = string(policyJson)
 
 				m.controller.State.SetPolicy(&models.Policy{
 					Arn:      "new",
-					Name:     "New",
+					Name:     policy.Id,
 					Document: string(policyJson),
 				})
+
+				m.reinitializeForm()
 			}
 		}
 	}
 
-	return m, tea.Batch(tiCmd, vpCmd)
+	var cmds []tea.Cmd
+
+	// Process the form
+	form, cmd := m.form.Update(msg)
+	if f, ok := form.(*huh.Form); ok {
+		m.form = f
+		cmds = append(cmds, cmd)
+	}
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m CreatePolicy) View() string {
-	if m.err != nil {
-		return createPolicyStyle.Render(m.err.Error())
+	s := m.styles
+
+	v := strings.TrimSuffix(m.form.View(), "\n\n")
+	form := m.lg.NewStyle().Margin(1, 0).Render(v)
+
+	var titles string
+	if m.controller.State.GetService() != nil && m.controller.State.GetResource() != nil {
+		titles = lipgloss.JoinVertical(lipgloss.Left,
+			s.ServiceNameHeader.Render("Service Name: "+m.controller.State.GetService().Name),
+			s.ResourceArnHeader.Render("Resource ARN: "+m.controller.State.GetResource().Arn),
+		)
 	}
 
-	return fmt.Sprintf(
-		"%s\n\n%s",
-		m.viewport.View(),
-		m.textarea.View(),
-	) + "\n\n"
+	// Status (right side)
+	var status string
+	{
+		buildInfo := "(None)"
+
+		if m.result != "" {
+			buildInfo = m.result
+		}
+
+		const statusWidth = 60
+		statusMarginLeft := m.width - statusWidth - lipgloss.Width(form) - s.Status.GetMarginRight()
+		status = s.Status.
+			Height(lipgloss.Height(form)).
+			Width(statusWidth).
+			MarginLeft(statusMarginLeft).
+			Render(s.StatusHeader.Render("Policy") + "\n" +
+				buildInfo)
+	}
+
+	errors := m.form.Errors()
+	header := lipgloss.JoinVertical(lipgloss.Top,
+		m.appBoundaryView("Custom Policy Generator"),
+		titles,
+	)
+	if len(errors) > 0 {
+		header = m.appErrorBoundaryView(m.errorView())
+	}
+	body := lipgloss.JoinHorizontal(lipgloss.Top, form, status)
+
+	footer := m.appBoundaryView(m.form.Help().ShortHelpView(m.form.KeyBinds()))
+	if len(errors) > 0 {
+		footer = m.appErrorBoundaryView("")
+	}
+
+	return s.Base.Render(header + "\n" + body + "\n\n" + footer)
+}
+
+func (m CreatePolicy) errorView() string {
+	var s string
+	for _, err := range m.form.Errors() {
+		s += err.Error()
+	}
+	return s
+}
+
+func (m CreatePolicy) appBoundaryView(text string) string {
+	return lipgloss.PlaceHorizontal(
+		m.width,
+		lipgloss.Left,
+		m.styles.HeaderText.Render(text),
+		lipgloss.WithWhitespaceChars("/"),
+		lipgloss.WithWhitespaceForeground(indigo),
+	)
+}
+
+func (m CreatePolicy) appErrorBoundaryView(text string) string {
+	return lipgloss.PlaceHorizontal(
+		m.width,
+		lipgloss.Left,
+		m.styles.ErrorHeaderText.Render(text),
+		lipgloss.WithWhitespaceChars("/"),
+		lipgloss.WithWhitespaceForeground(red),
+	)
+}
+
+func (m *CreatePolicy) reinitializeForm() {
+	doneInitialValue := false
+	m.done = &doneInitialValue
+
+	// Preserve the current message value
+	m.form = huh.NewForm(
+		huh.NewGroup(
+			huh.NewText().
+				Key("message").
+				Title("Describe Your Policy").Value(m.message),
+			huh.NewConfirm().
+				Key("done").
+				Title("All done?").
+				Value(m.done).
+				Affirmative("Yes").
+				Negative("Refresh"),
+		),
+	).
+		WithWidth(45).
+		WithShowHelp(false).
+		WithShowErrors(false)
 }
