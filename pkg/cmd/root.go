@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/Permify/kivo/internal/ai"
+	configc "github.com/Permify/kivo/pkg/cmd/config"
 
 	"github.com/Permify/kivo/internal/config"
 	"github.com/Permify/kivo/pkg/cmd/aws"
@@ -108,9 +109,10 @@ func NewRootCommand() *cobra.Command {
 		RegisterRootFlags(f)
 	}
 
+	configCommand := configc.NewConfigCommand()
 	awsCommand := aws.NewAwsCommand(cfg)
 
-	root.AddCommand(awsCommand)
+	root.AddCommand(awsCommand, configCommand)
 
 	return root
 }
