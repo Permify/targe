@@ -137,7 +137,7 @@ func r(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 
 		// Check user choice
 		if result, ok := mod.(RootModel); ok && result.choice == "yes" {
-			args := []string{"kivo"}
+			var args []string
 			args = append(args, strings.Split(command, " ")...)
 			cmd.SetArgs(args)
 			return cmd.Root().Execute()
