@@ -366,6 +366,15 @@ func (c *Controller) Next() tea.Model {
 				return NewServiceList(c)
 			}
 		} else {
+			// Handle case where resource is defined
+			if c.State.resource != nil {
+				return NewCreatePolicy(c)
+			}
+
+			// Handle case where service is defined
+			if c.State.service != nil {
+				return NewResourceList(c)
+			}
 			// If no policy option is selected
 			return NewPolicyOptionList(c)
 		}
