@@ -64,31 +64,6 @@ var IAMPolicySchema = map[string]interface{}{
 							"type": "string",
 							"enum": []string{"Allow", "Deny"},
 						},
-						"Principal": map[string]interface{}{
-							"oneOf": []interface{}{
-								map[string]interface{}{
-									"type": "string",
-									"enum": []string{"*"},
-								},
-								map[string]interface{}{
-									"type": "object",
-									"properties": map[string]interface{}{
-										"AWS": map[string]interface{}{
-											"oneOf": []interface{}{
-												map[string]interface{}{
-													"type": "string",
-												},
-												map[string]interface{}{
-													"type":  "array",
-													"items": map[string]interface{}{"type": "string"},
-												},
-											},
-										},
-									},
-									"additionalProperties": false,
-								},
-							},
-						},
 						"Action": map[string]interface{}{
 							"oneOf": []interface{}{
 								map[string]interface{}{
