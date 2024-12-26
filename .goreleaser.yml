@@ -1,0 +1,81 @@
+---
+version: 2
+project_name: kivo
+universal_binaries:
+  - replace: true
+builds:
+  -
+    env:
+      - CGO_ENABLED=0
+    goarch:
+      - amd64
+      - arm64
+    goos:
+      - linux
+      - windows
+      - darwin
+    ldflags:
+      - "-s -w"
+    main: ./cmd/kivo
+    mod_timestamp: "{{ .CommitTimestamp }}"
+brews:
+  -
+    dependencies:
+      -
+        name: go
+        type: build
+    description: ""
+    download_strategy: CurlDownloadStrategy
+    directory: Formula
+    homepage: "https://github.com/Permify/kivo"
+    license: "Apache-2.0"
+    custom_block: |
+      head "https://github.com/Permify/kivo.git", :branch => "master"
+    install: |-
+        bin.install "kivo"
+    repository:
+      name: homebrew-tap-kivo
+      owner: Permify
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    commit_author:
+      name: permify-bot
+      email: hello@permify.co
+    url_template: "https://github.com/Permify/kivo/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+nfpms:
+  -
+    description: ""
+    formats:
+      - deb
+      - rpm
+      - apk
+    homepage: "https://github.com/Permify"
+    license: "MIT"
+    maintainer: "permify <help@permify.co>"
+    vendor: "permify inc."
+msi:
+  - id: kivo
+    name: "kivo-{{.MsiArch}}"
+    wxs: ./assets/windows/kivo.wxs
+    ids:
+      - kivo
+    goamd64: v1
+    extra_files:
+      - ./assets/kivo.svg
+    replace: true
+    mod_timestamp: "{{ .CommitTimestamp }}"
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+checksum:
+  name_template: checksums.txt
+release:
+  draft: true
+  mode: replace
+  prerelease: auto
+  footer: |
+    This is an automated release.
