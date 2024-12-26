@@ -5,7 +5,13 @@
     <source media="(prefers-color-scheme: dark)" srcset="https://github.com/Permify/kivo/raw/master/assets/images/logo-iam-copilot-dark.svg">
     <img alt="Kivo logo" src="https://github.com/Permify/kivo/raw/master/assets/images/logo-iam-copilot-light.svg" width="40%">
   </picture>
+<h1 align="center">
+   Kivo - Open Source IAM Copilot
+</h1>
 </div>
+<p align="center">
+   Kivo is an open-source CLI for managing IAM (Identity and Access Management) operations with AI assistance. It simplifies tasks like managing users, roles, and permissions and ensuring secure, consistent processes across environments.
+</p>
 
 ### Installation Steps
 
