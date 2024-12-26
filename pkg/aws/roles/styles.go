@@ -24,8 +24,7 @@ type Styles struct {
 	HeaderText,
 	Status,
 	StatusHeader,
-	ServiceNameHeader,
-	ResourceArnHeader,
+	StateHeader,
 	Highlight,
 	ErrorHeaderText,
 	Help lipgloss.Style
@@ -44,12 +43,9 @@ func NewStyles(lg *lipgloss.Renderer) *Styles {
 		BorderForeground(purple).
 		PaddingLeft(1).
 		MarginTop(1)
-	s.ServiceNameHeader = lipgloss.NewStyle().
+	s.StateHeader = lipgloss.NewStyle().
 		Bold(true).
-		Foreground(green).MarginLeft(2).MarginTop(1)
-	s.ResourceArnHeader = lipgloss.NewStyle().
-		Bold(true).
-		Foreground(green).MarginLeft(2)
+		Foreground(green).MarginLeft(2).MarginTop(0).MarginLeft(2)
 	s.StatusHeader = lg.NewStyle().
 		Foreground(green).
 		Bold(true)

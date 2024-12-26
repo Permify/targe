@@ -128,12 +128,31 @@ func (m CreatePolicy) View() string {
 	v := strings.TrimSuffix(m.form.View(), "\n\n")
 	form := m.lg.NewStyle().Margin(1, 0).Render(v)
 
-	var titles string
-	if m.controller.State.GetService() != nil && m.controller.State.GetResource() != nil {
-		titles = lipgloss.JoinVertical(lipgloss.Left,
-			s.ServiceNameHeader.Render("Service Name: "+m.controller.State.GetService().Name),
-			s.ResourceArnHeader.Render("Resource ARN: "+m.controller.State.GetResource().Arn),
+	var titles []string
+	var title string
+
+	if m.controller.State.GetUser() != nil {
+		titles = append(titles,
+			s.StateHeader.Render("User Name: "+m.controller.State.GetUser().Name),
+			s.StateHeader.Render("User ARN: "+m.controller.State.GetUser().Arn),
 		)
+	}
+
+	if m.controller.State.GetService() != nil && m.controller.State.GetResource() != nil {
+		titles = append(titles,
+			s.StateHeader.Render("Service Name: "+m.controller.State.GetService().Name),
+			s.StateHeader.Render("Resource ARN: "+m.controller.State.GetResource().Arn),
+		)
+	}
+
+	if len(titles) > 0 {
+		// Join the titles vertically
+		title = lipgloss.JoinVertical(lipgloss.Left, titles...)
+
+		// Apply margin-top to the entire title block
+		title = lipgloss.NewStyle().
+			MarginTop(1). // Set the margin top to 2 lines
+			Render(title)
 	}
 
 	// Status (right side)
@@ -158,7 +177,7 @@ func (m CreatePolicy) View() string {
 	errors := m.form.Errors()
 	header := lipgloss.JoinVertical(lipgloss.Top,
 		m.appBoundaryView("Custom Policy Generator"),
-		titles,
+		title,
 	)
 	if len(errors) > 0 {
 		header = m.appErrorBoundaryView(m.errorView())

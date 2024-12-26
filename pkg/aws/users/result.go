@@ -173,7 +173,7 @@ func (m Result) collectOverviewRows() [][]string {
 
 func (m Result) formatPolicyRow(policy *models.Policy) []string {
 	if len(policy.Document) > 0 {
-		return []string{"Policy", policy.Name, string(policy.Document)}
+		return []string{"Policy", policy.Name, "new"}
 	}
 	return []string{"Policy", policy.Name, policy.Arn}
 }

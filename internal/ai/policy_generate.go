@@ -36,8 +36,8 @@ type IAMPrincipal struct {
 }
 
 type IAMActionResource struct {
-	IsStar    bool
-	Resources []string
+	IsWildcard bool
+	Resources  []string
 }
 
 var IAMPolicySchema = map[string]interface{}{
@@ -130,7 +130,7 @@ func (ar *IAMActionResource) UnmarshalJSON(data []byte) error {
 	var str string
 	if err := json.Unmarshal(data, &str); err == nil {
 		if str == "*" {
-			ar.IsStar = true
+			ar.IsWildcard = true
 			return nil
 		}
 		ar.Resources = []string{str}
@@ -185,7 +185,7 @@ func (p IAMPrincipal) MarshalJSON() ([]byte, error) {
 }
 
 func (ar IAMActionResource) MarshalJSON() ([]byte, error) {
-	if ar.IsStar {
+	if ar.IsWildcard {
 		return json.Marshal("*")
 	}
 	if len(ar.Resources) == 1 {
