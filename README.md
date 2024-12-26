@@ -13,6 +13,7 @@
 
 <p align="center">
     <a href="https://github.com/Permify/kivo" target="_blank"><img src="https://img.shields.io/github/go-mod/go-version/Permify/kivo?style=for-the-badge&logo=go" alt="Permify Go Version" /></a>&nbsp;
+ <a href="https://goreportcard.com/report/github.com/Permify/kivo" target="_blank"><img src="https://goreportcard.com/badge/github.com/Permify/kivo?style=for-the-badge&logo=go" alt="Kivo Go Report Card" /></a>&nbsp;
     <a href="https://github.com/Permify/kivo" target="_blank"><img src="https://img.shields.io/github/license/Permify/kivo?style=for-the-badge" alt="Kivo Licence" /></a>&nbsp;
     <a href="https://discord.gg/n6KfzYxhPp" target="_blank"><img src="https://img.shields.io/discord/950799928047833088?style=for-the-badge&logo=discord&label=DISCORD" alt="Permify Discord Channel" /></a>&nbsp;
     <a href="https://github.com/Permify/kivo/releases" target="_blank"><img src="https://img.shields.io/github/v/release/permify/kivo?include_prereleases&style=for-the-badge" alt="Kivo Release" /></a>&nbsp;
