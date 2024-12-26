@@ -70,7 +70,7 @@ var UserPromptSchema = map[string]interface{}{
 			},
 			"policy": map[string]interface{}{
 				"type":        []string{"string", "null"},
-				"description": "The name of the policy. If it's too vague, return null. If the user input does not provide any meaningful context, the model must not guess a policy",
+				"description": "The name of the policy. If it's too vague, return null. If the user input does not provide any meaningful context, the model must not guess a policy. For Managed policies, use the arn foe example: arn:aws:iam::aws:policy/AdministratorAccess.",
 			},
 			"confidence": map[string]interface{}{
 				"type":        "integer",
@@ -171,7 +171,7 @@ func GenerateCLICommand(response GPTResponse) string {
 
 	if response.Principal != nil {
 		if val, ok := response.Principal["type"]; ok && val != "" {
-			flags = append(flags, fmt.Sprintf("%s", val))
+			flags = append(flags, val)
 			if val == "users" {
 				flags = append(flags, "--user")
 			} else if val == "groups" {
@@ -181,7 +181,7 @@ func GenerateCLICommand(response GPTResponse) string {
 			}
 		}
 		if val, ok := response.Principal["name"]; ok && val != "" {
-			flags = append(flags, fmt.Sprintf("%s", val))
+			flags = append(flags, val)
 		}
 	}
 
