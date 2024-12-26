@@ -60,7 +60,7 @@ msi:
       - kivo
     goamd64: v1
     extra_files:
-      - ./assets/logo-iam-copilot-light.svg
+      - ./assets/images/logo-iam-copilot-light.svg
     replace: true
     mod_timestamp: "{{ .CommitTimestamp }}"
 snapshot:
