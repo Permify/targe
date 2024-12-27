@@ -8,7 +8,10 @@
 </h1>
 </div>
 <p align="center">
-   Kivo is an open-source CLI for managing IAM (Identity and Access Management) operations with AI assistance. It simplifies tasks like managing users, roles, and permissions and ensuring secure, consistent processes across environments.
+   Kivo is an open-source CLI for managing IAM (Identity and Access Management) operations with AI assistance.
+</p>
+<p align="center">
+   DevOps engineers use Kivo to configure how employees in their organization access infrastructure resources. Kivo simplifies and accelerates granting, revoking, and creating custom policies within the CLI — eliminating the need for tedious back-and-forth UI work.
 </p>
 
 <p align="center">
@@ -20,7 +23,6 @@
     <a href="https://img.shields.io/github/commit-activity/m/Permify/kivo?style=for-the-badge" target="_blank"><img src="https://img.shields.io/github/commit-activity/m/Permify/kivo?style=for-the-badge" alt="Kivo Commit Activity" /></a>&nbsp;
     <a href="https://img.shields.io/github/actions/workflow/status/Permify/kivo/release.yml?style=for-the-badge" target="_blank"><img src="https://img.shields.io/github/actions/workflow/status/Permify/kivo/release.yml?style=for-the-badge" alt="GitHub Workflow Status" /></a>&nbsp;
 </p>     
-
 
 ### Installation Steps
 
