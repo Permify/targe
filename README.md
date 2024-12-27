@@ -10,9 +10,8 @@
 <p align="center">
    Kivo is an open-source CLI for managing IAM (Identity and Access Management) operations with AI assistance.
 </p>
-<p align="center">
-   DevOps engineers use Kivo to configure how employees in their organization access infrastructure resources. Kivo simplifies and accelerates granting, revoking, and creating custom policies within the CLI — eliminating the need for tedious back-and-forth UI work.
-</p>
+
+![Kivo Demo](assets/images/kivo.gif)
 
 <p align="center">
     <a href="https://github.com/Permify/kivo" target="_blank"><img src="https://img.shields.io/github/go-mod/go-version/Permify/kivo?style=for-the-badge&logo=go" alt="Permify Go Version" /></a>&nbsp;
@@ -23,6 +22,10 @@
     <a href="https://img.shields.io/github/commit-activity/m/Permify/kivo?style=for-the-badge" target="_blank"><img src="https://img.shields.io/github/commit-activity/m/Permify/kivo?style=for-the-badge" alt="Kivo Commit Activity" /></a>&nbsp;
     <a href="https://img.shields.io/github/actions/workflow/status/Permify/kivo/release.yml?style=for-the-badge" target="_blank"><img src="https://img.shields.io/github/actions/workflow/status/Permify/kivo/release.yml?style=for-the-badge" alt="GitHub Workflow Status" /></a>&nbsp;
 </p>     
+
+<p align="center">
+   DevOps engineers use Kivo to configure how employees in their organization access infrastructure resources. Kivo simplifies and accelerates granting, revoking, and creating custom policies within the CLI — eliminating the need for tedious back-and-forth UI work.
+</p>
 
 ### Installation Steps
 
@@ -70,3 +73,19 @@
    region = us-east-1
    ```
    Replace `us-east-1` with your desired region.
+
+## Communication Channels
+
+If you like Permify, please consider giving us a :star:
+
+<p align="left">
+<a href="https://discord.gg/n6KfzYxhPp">
+ <img height="70px" width="70px" alt="permify | Discord" src="https://user-images.githubusercontent.com/39353278/187209316-3d01a799-c51b-4eaa-8f52-168047078a14.png" />
+</a>
+<a href="https://twitter.com/GetPermify">
+  <img height="70px" width="70px" alt="permify | Twitter" src="https://user-images.githubusercontent.com/39353278/187209323-23f14261-d406-420d-80eb-1aa707a71043.png"/>
+</a>
+<a href="https://www.linkedin.com/company/permifyco">
+  <img height="70px" width="70px" alt="permify | Linkedin" src="https://user-images.githubusercontent.com/39353278/187209321-03293a24-6f63-4321-b362-b0fc89fdd879.png" />
+</a>
+</p>
