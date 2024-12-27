@@ -211,13 +211,23 @@ func toStringSlice(v interface{}) []string {
 	}
 }
 
-func GeneratePolicy(apiKey, prompt string, resourceArn *string) (IAMPolicy, error) {
+func GeneratePolicy(apiKey, prompt string, serviceName, resourceArn *string) (IAMPolicy, error) {
 	url := "https://api.openai.com/v1/chat/completions"
 
-	// Include resourceArn information in the user prompt.
-	resourceArnInfo := ""
+	// Build detailed information for the service and resource.
+	serviceAndResourceDetails := ""
 	if resourceArn != nil {
-		resourceArnInfo = fmt.Sprintf("\nThe resource ARN is: %s", *resourceArn)
+		if serviceName != nil {
+			serviceAndResourceDetails = fmt.Sprintf("The service name is: %s\nThe resource ARN is: %s", *serviceName, *resourceArn)
+		} else {
+			serviceAndResourceDetails = fmt.Sprintf("The service name is: all services\nThe resource ARN is: %s", *resourceArn)
+		}
+	} else {
+		if serviceName != nil {
+			serviceAndResourceDetails = fmt.Sprintf("The service name is: %s\nNo specific resource ARN provided.", *serviceName)
+		} else {
+			serviceAndResourceDetails = "The service name is: all services\nNo specific resource ARN provided."
+		}
 	}
 
 	payload := map[string]interface{}{
@@ -225,7 +235,7 @@ func GeneratePolicy(apiKey, prompt string, resourceArn *string) (IAMPolicy, erro
 		"temperature": 0.1,
 		"messages": []map[string]string{
 			{"role": "system", "content": "You are an assistant that produces IAM policies as JSON."},
-			{"role": "user", "content": fmt.Sprintf("%s%s", prompt, resourceArnInfo)},
+			{"role": "user", "content": fmt.Sprintf("%s%s", prompt, serviceAndResourceDetails)},
 		},
 		"response_format": map[string]interface{}{
 			"type":        "json_schema",

@@ -80,18 +80,20 @@ func (m CreatePolicy) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return Switch(m.controller.Next(), 0, 0)
 			} else {
 				var resourceArn *string = nil
-				if m.controller.State.GetService() != nil {
+				if m.controller.State.GetResource() != nil {
 					resourceArn = &m.controller.State.GetResource().Arn
+				}
+
+				var serviceName *string = nil
+				if m.controller.State.GetService() != nil {
+					serviceName = &m.controller.State.GetService().Name
 				}
 
 				if m.message == nil {
 					m.err = errors.New("Please provide a message")
 				}
 
-				policy, err := ai.GeneratePolicy(m.controller.openAiApiKey, *m.message, resourceArn)
-				if err != nil {
-					m.err = err
-				}
+				policy, err := ai.GeneratePolicy(m.controller.openAiApiKey, *m.message, serviceName, resourceArn)
 
 				policyJson, err := json.MarshalIndent(policy, "", "\t")
 				if err != nil {

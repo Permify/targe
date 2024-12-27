@@ -97,7 +97,9 @@ type ResourceLoadedMsg struct{ List []list.Item }
 // LoadResources loads resources.
 func (c *Controller) LoadResources() tea.Cmd {
 	return func() tea.Msg {
-		var items []list.Item
+		items := []list.Item{
+			models.Resource{Name: "All Resources", Arn: "*"},
+		}
 
 		resources, err := c.api.ListResources(c.State.GetService().Name)
 		if err != nil {
