@@ -7,8 +7,10 @@
    Kivo - Open Source IAM Copilot
 </h1>
 </div>
-<p align="center">
-   Kivo is an open-source CLI for managing IAM (Identity and Access Management) operations with AI assistance.
+<p>
+Kivo is an open-source CLI for managing IAM (Identity and Access Management) operations with AI assistance.
+
+DevOps engineers use Kivo to configure how employees in their organization access infrastructure resources. Kivo simplifies and accelerates granting and revoking access, while supporting custom policy creation — eliminating the need for tedious back-and-forth UI work.
 </p>
 
 <p align="center">
@@ -23,11 +25,51 @@
 
 ![Kivo Demo](assets/images/kivo.gif)
 
-<p align="center">
-   DevOps engineers use Kivo to configure how employees in their organization access infrastructure resources. Kivo simplifies and accelerates granting, revoking, and creating custom policies within the CLI — eliminating the need for tedious back-and-forth UI work.
-</p>
+## How it Works?
 
-### Installation Steps
+1. Configure your cloud credentials to enable Kivo to access resources in your infrastructure. Currently, Kivo supports AWS only.
+2. Start an access flow or use AI to create an access command to fullfil access request.
+3. Preview the access action and complete granting and revoking access.
+
+### Create an Access Command with AI 
+
+Describe the access action you want to perform. For example, "give S3 read-only access to user Omer." 
+
+Kivo analyzes the request and generates the necessary access command using AI.
+
+![kivo-ai-flow](https://github.com/user-attachments/assets/a64b7aab-1fe1-4cba-b5f1-bb407dab8383)
+
+### Start an Access Flow Manually
+
+You can also manually start any flow to complete an access action. 
+
+There are three main flows:
+   - `~ % kivo aws users`   | Grant or revoke access to/from a user.
+   - `~ % kivo aws groups`  | Add or remove a user from a group.
+   - `~ % kivo aws roles`   | Attach or detach a role to/from a user.
+
+Let's repeat the example above of granting s3 read-only access to user Omer.
+
+We will use following command to start **user** flow: `~ % kivo aws users`.
+
+The user access flow begins by listing the users in the system. Select the user to take action on.
+
+![select-user](https://github.com/user-attachments/assets/e764d8fd-7cce-4229-a119-45daa8ce6442)
+
+After selecting the user, choose the operation to perform. Let’s attach a policy to user Omer.
+
+![Screen Shot 2024-12-28 at 20 33 00](https://github.com/user-attachments/assets/71fe2f72-321c-4b64-b36f-f3574df05854)
+
+In the next step, select the policy you want to attach. You can use "filters" in each section to search what you need.
+
+![Screen Shot 2024-12-28 at 20 32 18](https://github.com/user-attachments/assets/e3353b23-7c43-4a66-80b9-2359c72b5934)
+
+Finally, preview the access action.
+
+![Screen Shot 2024-12-28 at 20 35 40](https://github.com/user-attachments/assets/6883904e-edbe-4e05-9856-c70760996adc)
+
+
+## Installation Steps
 
 1. **Install Kivo CLI:**
    ```shell
@@ -76,7 +118,7 @@
 
 ## Communication Channels
 
-If you like Permify, please consider giving us a :star:
+If you like Kivo, please consider giving us a :star:
 
 <p align="left">
 <a href="https://discord.gg/n6KfzYxhPp">
