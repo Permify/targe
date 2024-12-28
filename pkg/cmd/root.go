@@ -75,7 +75,10 @@ func (m RootModel) View() string {
 	// Render sections
 	brand := brandStyle.Render("Generating your command...")
 	header := headerStyle.Render("Here’s your command:")
-	message := messageStyle.Render(fmt.Sprintf("➤ kivo %s", m.command))
+
+	// Format the command
+	formattedCommand := formatCommand(m.command, 4)
+	message := messageStyle.Render(fmt.Sprintf("➤ kivo %s", formattedCommand))
 	prompt := promptStyle.Render("Would you like to use this command? (Y/n):")
 
 	// Combine output
@@ -145,4 +148,26 @@ func r(cfg *config.Config) func(cmd *cobra.Command, args []string) error {
 
 		return nil
 	}
+}
+
+// Helper function to format a command
+func formatCommand(command string, maxWordsPerLine int) string {
+	parts := strings.Fields(command) // Split command into words
+	var result []string
+	var line []string
+
+	for _, part := range parts {
+		line = append(line, part)
+		if len(line) >= maxWordsPerLine {
+			result = append(result, strings.Join(line, " ")+" \\")
+			line = []string{}
+		}
+	}
+
+	// Add the remaining words
+	if len(line) > 0 {
+		result = append(result, strings.Join(line, " "))
+	}
+
+	return strings.Join(result, "\n      ")
 }
