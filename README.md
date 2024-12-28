@@ -27,9 +27,9 @@ DevOps engineers use Kivo to configure how employees in their organization acces
 
 ## How it Works?
 
-1. Configure your cloud credentials to enable Kivo to access resources in your infrastructure. Currently, Kivo supports AWS only.
-2. Start an access flow or use AI to create an access command to fullfil access request.
-3. Preview the access action and complete granting and revoking access.
+1. Configure your cloud credentials to enable Kivo to access resources in your infrastructure. Currently, Kivo supports only AWS.
+2. Start an access flow or use AI to create an access command to fulfill an access request.
+3. Preview the access action and complete the access request.
 
 ### Create an Access Command with AI 
 
@@ -37,16 +37,16 @@ Describe the access action you want to perform. For example, "give S3 read-only 
 
 Kivo analyzes the request and generates the necessary access command using AI.
 
-![kivo-ai-flow](https://github.com/user-attachments/assets/a64b7aab-1fe1-4cba-b5f1-bb407dab8383)
+![kivo-ai-flow](https://github.com/user-attachments/assets/ab5ee72b-e5f5-40ec-9f4e-8cf8c91ddff6)
 
 ### Start an Access Flow Manually
 
 You can also manually start any flow to complete an access action. 
 
 There are three main flows:
-   - `~ % kivo aws users`   | Grant or revoke access to/from a user.
-   - `~ % kivo aws groups`  | Add or remove a user from a group.
-   - `~ % kivo aws roles`   | Attach or detach a role to/from a user.
+   - `~ % kivo aws users`  | Grant or revoke access to/from a user.
+   - `~ % kivo aws groups` | Attach or detach a policy to/from a group.
+   - `~ % kivo aws roles`  | Attach or detach a policy to/from a role.
 
 Let's repeat the example above of granting s3 read-only access to user Omer.
 
@@ -54,19 +54,19 @@ We will use following command to start **user** flow: `~ % kivo aws users`.
 
 The user access flow begins by listing the users in the system. Select the user to take action on.
 
-![select-user](https://github.com/user-attachments/assets/e764d8fd-7cce-4229-a119-45daa8ce6442)
+![select-user](https://github.com/user-attachments/assets/346cf056-b02f-43e4-866e-61a36f95d04a)
 
 After selecting the user, choose the operation to perform. Let’s attach a policy to user Omer.
 
-![Screen Shot 2024-12-28 at 20 33 00](https://github.com/user-attachments/assets/71fe2f72-321c-4b64-b36f-f3574df05854)
+![select-operation](https://github.com/user-attachments/assets/198fec03-4760-4a2e-a227-6a2b2f2e3f82)
 
 In the next step, select the policy you want to attach. You can use "filters" in each section to search what you need.
 
-![Screen Shot 2024-12-28 at 20 32 18](https://github.com/user-attachments/assets/e3353b23-7c43-4a66-80b9-2359c72b5934)
+![select-policy](https://github.com/user-attachments/assets/1ef02467-4bdf-49b9-b54e-8e491f75647e)
 
 Finally, preview the access action.
 
-![Screen Shot 2024-12-28 at 20 35 40](https://github.com/user-attachments/assets/6883904e-edbe-4e05-9856-c70760996adc)
+![Screen Shot 2024-12-28 at 20 35 40](https://github.com/user-attachments/assets/6a8a57bb-4eb5-4fcc-8f5b-29279be6c0cf)
 
 
 ## Installation Steps
