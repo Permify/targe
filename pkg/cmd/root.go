@@ -77,7 +77,7 @@ func (m RootModel) View() string {
 	header := headerStyle.Render("Here’s your command:")
 
 	// Format the command
-	formattedCommand := formatCommand(m.command, 4)
+	formattedCommand := formatCommand(m.command, 2)
 	message := messageStyle.Render(fmt.Sprintf("➤ kivo %s", formattedCommand))
 	prompt := promptStyle.Render("Would you like to use this command? (Y/n):")
 
