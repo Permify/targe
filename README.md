@@ -54,20 +54,19 @@ We will use following command to start **user** flow: `~ % kivo aws users`.
 
 The user access flow begins by listing the users in the system. Select the user to take action on.
 
-![select-user](https://github.com/user-attachments/assets/346cf056-b02f-43e4-866e-61a36f95d04a)
+![select-user](https://github.com/user-attachments/assets/7746878b-3570-4e94-9de2-9d536258a55b)
 
 After selecting the user, choose the operation to perform. Let’s attach a policy to user Omer.
 
-![select-operation](https://github.com/user-attachments/assets/198fec03-4760-4a2e-a227-6a2b2f2e3f82)
+![select-operation](https://github.com/user-attachments/assets/fbe696ae-1649-42c4-bacc-8115c9f9e1d4)
 
 In the next step, select the policy you want to attach. You can use "filters" in each section to search what you need.
 
-![select-policy](https://github.com/user-attachments/assets/1ef02467-4bdf-49b9-b54e-8e491f75647e)
+![select-policy](https://github.com/user-attachments/assets/d40354fe-43e0-497a-b1b6-570e02ac25f7)
 
 Finally, preview the access action.
 
-![Screen Shot 2024-12-28 at 20 35 40](https://github.com/user-attachments/assets/6a8a57bb-4eb5-4fcc-8f5b-29279be6c0cf)
-
+![preview-access-action](https://github.com/user-attachments/assets/61835e34-5598-4e73-b96c-6f09819c1b45)
 
 ## Installation Steps
 
