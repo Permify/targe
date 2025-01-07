@@ -29,7 +29,7 @@ integration-test: ### run integration-test
 
 .PHONY: build
 build: ## Build/compile the Combo service
-	go build -o ./kivo ./cmd/kivo
+	go build -o ./targe ./cmd/targe
 
 .PHONY: format
 format: ## Auto-format the code
@@ -49,7 +49,7 @@ coverage: ## Generate global code coverage report
 
 .PHONY: clean
 clean: ## Remove temporary and generated files
-	rm -f ./kivo
+	rm -f ./targe
 	rm -f covprofile coverage.html
 
 .PHONY: release
@@ -59,4 +59,12 @@ release: format security-scan clean ## Prepare for release
 
 .PHONY: users
 users: build
-	./kivo users
+	./targe users
+
+.PHONY: groups
+groups: build
+	./targe groups
+
+.PHONY: roles
+roles: build
+	./targe roles

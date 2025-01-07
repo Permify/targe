@@ -21,7 +21,7 @@ func NewApi(config aws.Config) *Api {
 
 func (op *Api) CreatePolicy(ctx context.Context, name, document string) (*iam.CreatePolicyOutput, error) {
 	return op.client.CreatePolicy(ctx, &iam.CreatePolicyInput{
-		Description:    aws.String("created by kivo"),
+		Description:    aws.String("created by targe"),
 		PolicyName:     aws.String(name),
 		PolicyDocument: aws.String(document),
 	})

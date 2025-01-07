@@ -11,10 +11,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	internalaws "github.com/Permify/kivo/internal/aws"
-	"github.com/Permify/kivo/internal/config"
-	pkggroups "github.com/Permify/kivo/pkg/aws/groups"
-	"github.com/Permify/kivo/pkg/aws/models"
+	internalaws "github.com/Permify/targe/internal/aws"
+	"github.com/Permify/targe/internal/config"
+	pkggroups "github.com/Permify/targe/pkg/aws/groups"
+	"github.com/Permify/targe/pkg/aws/models"
 )
 
 type Groups struct {

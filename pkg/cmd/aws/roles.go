@@ -12,10 +12,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	internalaws "github.com/Permify/kivo/internal/aws"
-	"github.com/Permify/kivo/internal/config"
-	"github.com/Permify/kivo/pkg/aws/models"
-	pkgroles "github.com/Permify/kivo/pkg/aws/roles"
+	internalaws "github.com/Permify/targe/internal/aws"
+	"github.com/Permify/targe/internal/config"
+	"github.com/Permify/targe/pkg/aws/models"
+	pkgroles "github.com/Permify/targe/pkg/aws/roles"
 )
 
 type Roles struct {

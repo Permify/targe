@@ -7,14 +7,14 @@
         Language='1033'
         Codepage='1252'
         Version='{{.Version}}'
-        Manufacturer='Kivo'>
+        Manufacturer='Targe'>
 
         <Package
             Id='*'
             Keywords='Installer'
             Description="{{.ProjectName}} installer"
             Comments=''
-            Manufacturer='Kivo'
+            Manufacturer='Targe'
             InstallerVersion='200'
             Languages='1033'
             Compressed='yes'

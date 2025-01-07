@@ -27,7 +27,7 @@ func NewConfig() (*Config, error) {
 	viper.SetConfigType("toml")
 
 	// Add the path where the config file is located
-	configPath := os.ExpandEnv("$HOME/.kivo/")
+	configPath := os.ExpandEnv("$HOME/.targe/")
 	viper.AddConfigPath(configPath)
 
 	// Ensure the directory exists

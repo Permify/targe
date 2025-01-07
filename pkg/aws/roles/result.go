@@ -9,7 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
 
-	"github.com/Permify/kivo/pkg/aws/models"
+	"github.com/Permify/targe/pkg/aws/models"
 )
 
 type Result struct {

@@ -8,9 +8,9 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/Permify/kivo/internal/aws"
-	requirements "github.com/Permify/kivo/internal/requirements/aws"
-	"github.com/Permify/kivo/pkg/aws/models"
+	"github.com/Permify/targe/internal/aws"
+	requirements "github.com/Permify/targe/internal/requirements/aws"
+	"github.com/Permify/targe/pkg/aws/models"
 )
 
 type Controller struct {

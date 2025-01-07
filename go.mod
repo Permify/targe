@@ -1,4 +1,4 @@
-module github.com/Permify/kivo
+module github.com/Permify/targe
 
 go 1.23.3
 

@@ -1,33 +1,33 @@
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/Permify/kivo/raw/master/assets/images/logo-iam-copilot-dark.png">
-    <img alt="Kivo logo" src="https://github.com/Permify/kivo/raw/master/assets/images/logo-iam-copilot-light.png" width="40%">
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/Permify/targe/raw/master/assets/images/logo-iam-copilot-dark.png">
+    <img alt="Targe logo" src="https://github.com/Permify/targe/raw/master/assets/images/logo-iam-copilot-light.png" width="40%">
   </picture>
 <h1 align="center">
-   Kivo - Open Source IAM Copilot
+   Targe - Open Source IAM Copilot
 </h1>
 </div>
 <p>
-Kivo is an open-source CLI for managing IAM (Identity and Access Management) operations with AI assistance.
+Targe is an open-source CLI for managing IAM (Identity and Access Management) operations with AI assistance.
 
-DevOps engineers use Kivo to configure how employees in their organization access infrastructure resources. Kivo simplifies and accelerates granting and revoking access, while supporting custom policy creation — eliminating the need for tedious back-and-forth UI work.
+DevOps engineers use Targe to configure how employees in their organization access infrastructure resources. Targe simplifies and accelerates granting and revoking access, while supporting custom policy creation — eliminating the need for tedious back-and-forth UI work.
 </p>
 
 <p align="center">
-    <a href="https://github.com/Permify/kivo" target="_blank"><img src="https://img.shields.io/github/go-mod/go-version/Permify/kivo?style=for-the-badge&logo=go" alt="Permify Go Version" /></a>&nbsp;
- <a href="https://goreportcard.com/report/github.com/Permify/kivo" target="_blank"><img src="https://goreportcard.com/badge/github.com/Permify/kivo?style=for-the-badge&logo=go" alt="Kivo Go Report Card" /></a>&nbsp;
-    <a href="https://github.com/Permify/kivo" target="_blank"><img src="https://img.shields.io/github/license/Permify/kivo?style=for-the-badge" alt="Kivo Licence" /></a>&nbsp;
+    <a href="https://github.com/Permify/targe" target="_blank"><img src="https://img.shields.io/github/go-mod/go-version/Permify/targe?style=for-the-badge&logo=go" alt="Permify Go Version" /></a>&nbsp;
+ <a href="https://goreportcard.com/report/github.com/Permify/targe" target="_blank"><img src="https://goreportcard.com/badge/github.com/Permify/targe?style=for-the-badge&logo=go" alt="Targe Go Report Card" /></a>&nbsp;
+    <a href="https://github.com/Permify/targe" target="_blank"><img src="https://img.shields.io/github/license/Permify/targe?style=for-the-badge" alt="Targe Licence" /></a>&nbsp;
     <a href="https://discord.gg/n6KfzYxhPp" target="_blank"><img src="https://img.shields.io/discord/950799928047833088?style=for-the-badge&logo=discord&label=DISCORD" alt="Permify Discord Channel" /></a>&nbsp;
-    <a href="https://github.com/Permify/kivo/releases" target="_blank"><img src="https://img.shields.io/github/v/release/permify/kivo?include_prereleases&style=for-the-badge" alt="Kivo Release" /></a>&nbsp;
-    <a href="https://img.shields.io/github/commit-activity/m/Permify/kivo?style=for-the-badge" target="_blank"><img src="https://img.shields.io/github/commit-activity/m/Permify/kivo?style=for-the-badge" alt="Kivo Commit Activity" /></a>&nbsp;
-    <a href="https://img.shields.io/github/actions/workflow/status/Permify/kivo/release.yml?style=for-the-badge" target="_blank"><img src="https://img.shields.io/github/actions/workflow/status/Permify/kivo/release.yml?style=for-the-badge" alt="GitHub Workflow Status" /></a>&nbsp;
+    <a href="https://github.com/Permify/targe/releases" target="_blank"><img src="https://img.shields.io/github/v/release/permify/targe?include_prereleases&style=for-the-badge" alt="Targe Release" /></a>&nbsp;
+    <a href="https://img.shields.io/github/commit-activity/m/Permify/targe?style=for-the-badge" target="_blank"><img src="https://img.shields.io/github/commit-activity/m/Permify/targe?style=for-the-badge" alt="Targe Commit Activity" /></a>&nbsp;
+    <a href="https://img.shields.io/github/actions/workflow/status/Permify/targe/release.yml?style=for-the-badge" target="_blank"><img src="https://img.shields.io/github/actions/workflow/status/Permify/targe/release.yml?style=for-the-badge" alt="GitHub Workflow Status" /></a>&nbsp;
 </p>  
 
-![Kivo Demo](assets/images/kivo.gif)
+![Targe Demo](assets/images/targe.gif)
 
 ## How it Works?
 
-1. Configure your cloud credentials to enable Kivo to access resources in your infrastructure. Currently, Kivo supports only AWS.
+1. Configure your cloud credentials to enable Targe to access resources in your infrastructure. Currently, Targe supports only AWS.
 2. Start an access flow or use AI to create an access command to fulfill an access request.
 3. Preview the access action and complete the access request.
 
@@ -35,22 +35,22 @@ DevOps engineers use Kivo to configure how employees in their organization acces
 
 Describe the access action you want to perform. For example, "give S3 read-only access to user Omer." 
 
-Kivo analyzes the request and generates the necessary access command using AI.
+Targe analyzes the request and generates the necessary access command using AI.
 
-![kivo-ai-flow](https://github.com/user-attachments/assets/ab5ee72b-e5f5-40ec-9f4e-8cf8c91ddff6)
+![targe-ai-flow](https://github.com/user-attachments/assets/ab5ee72b-e5f5-40ec-9f4e-8cf8c91ddff6)
 
 ### Start an Access Flow Manually
 
 You can also manually start any flow to complete an access action. 
 
 There are three main flows:
-   - `~ % kivo aws users`  | Grant or revoke access to/from a user.
-   - `~ % kivo aws groups` | Attach or detach a policy to/from a group.
-   - `~ % kivo aws roles`  | Attach or detach a policy to/from a role.
+   - `~ % targe aws users`  | Grant or revoke access to/from a user.
+   - `~ % targe aws groups` | Attach or detach a policy to/from a group.
+   - `~ % targe aws roles`  | Attach or detach a policy to/from a role.
 
 Let's repeat the example above of granting s3 read-only access to user Omer.
 
-We will use following command to start **user** flow: `~ % kivo aws users`.
+We will use following command to start **user** flow: `~ % targe aws users`.
 
 The user access flow begins by listing the users in the system. Select the user to take action on.
 
@@ -70,15 +70,15 @@ Finally, preview the access action.
 
 ## Installation Steps
 
-1. **Install Kivo CLI:**
+1. **Install Targe CLI:**
    ```shell
-   brew tap permify/tap-kivo
-   brew install kivo
+   brew tap permify/tap-targe
+   brew install targe
    ```
 
 2. **Set Up AWS Credentials:**
 
-   Kivo requires AWS credentials to be configured in the file `~/.aws/credentials`. Follow these steps:
+   Targe requires AWS credentials to be configured in the file `~/.aws/credentials`. Follow these steps:
 
     - Create or open the `~/.aws/credentials` file using a text editor:
       ```shell
@@ -117,7 +117,7 @@ Finally, preview the access action.
 
 ## Communication Channels
 
-If you like Kivo, please consider giving us a :star:
+If you like Targe, please consider giving us a :star:
 
 <p align="left">
 <a href="https://discord.gg/n6KfzYxhPp">

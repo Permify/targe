@@ -5,7 +5,7 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/Permify/kivo/pkg/aws/models"
+	"github.com/Permify/targe/pkg/aws/models"
 )
 
 type PolicyList struct {

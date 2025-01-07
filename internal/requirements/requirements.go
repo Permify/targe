@@ -1,7 +1,7 @@
 package requirements
 
 import (
-	"github.com/Permify/kivo/internal/requirements/aws"
+	"github.com/Permify/targe/internal/requirements/aws"
 )
 
 type Requirement interface {

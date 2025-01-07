@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/Permify/kivo/pkg/cmd"
+	"github.com/Permify/targe/pkg/cmd"
 )
 
 func main() {

@@ -12,12 +12,12 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 
-	"github.com/Permify/kivo/pkg/aws/models"
+	"github.com/Permify/targe/pkg/aws/models"
 
-	internalaws "github.com/Permify/kivo/internal/aws"
-	"github.com/Permify/kivo/internal/config"
-	pkgusers "github.com/Permify/kivo/pkg/aws/users"
-	"github.com/Permify/kivo/pkg/cmd/common"
+	internalaws "github.com/Permify/targe/internal/aws"
+	"github.com/Permify/targe/internal/config"
+	pkgusers "github.com/Permify/targe/pkg/aws/users"
+	"github.com/Permify/targe/pkg/cmd/common"
 )
 
 type Users struct {

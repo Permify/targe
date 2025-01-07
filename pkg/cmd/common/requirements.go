@@ -9,7 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Permify/kivo/internal/requirements"
+	"github.com/Permify/targe/internal/requirements"
 )
 
 type RequirementsManager struct {
@@ -63,7 +63,7 @@ func (m RequirementsManager) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.done = true
 			return m, tea.Sequence(
 				tea.Printf("%s %s", checkMark, pkg.GetName()), // print the last success message
-				tea.Quit, // exit the program
+				tea.Quit,                                      // exit the program
 			)
 		}
 

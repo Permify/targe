@@ -11,11 +11,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/Permify/kivo/internal/ai"
-	configc "github.com/Permify/kivo/pkg/cmd/config"
+	"github.com/Permify/targe/internal/ai"
+	configc "github.com/Permify/targe/pkg/cmd/config"
 
-	"github.com/Permify/kivo/internal/config"
-	"github.com/Permify/kivo/pkg/cmd/aws"
+	"github.com/Permify/targe/internal/config"
+	"github.com/Permify/targe/pkg/cmd/aws"
 )
 
 type RootModel struct {
@@ -78,7 +78,7 @@ func (m RootModel) View() string {
 
 	// Format the command
 	formattedCommand := formatCommand(m.command, 2)
-	message := messageStyle.Render(fmt.Sprintf("➤ kivo %s", formattedCommand))
+	message := messageStyle.Render(fmt.Sprintf("➤ targe %s", formattedCommand))
 	prompt := promptStyle.Render("Would you like to use this command? (Y/n):")
 
 	// Combine output
@@ -95,7 +95,7 @@ func NewRootCommand() *cobra.Command {
 	}
 
 	root := &cobra.Command{
-		Use:   "kivo",
+		Use:   "targe",
 		Short: "",
 		Long:  ``,
 		RunE:  r(cfg),

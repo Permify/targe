@@ -1,8 +1,8 @@
 # Contributing
 
-Welcome to Kivo contribution guidelines, happy to see you here :blush:
+Welcome to Targe contribution guidelines, happy to see you here :blush:
 
-Before participating in the community, we must specify that all of the contributions must follow our [Code of Conduct](https://github.com/Permify/kivo/blob/master/CODE_OF_CONDUCT.md). Please read it before you make any contributions.
+Before participating in the community, we must specify that all of the contributions must follow our [Code of Conduct](https://github.com/Permify/targe/blob/master/CODE_OF_CONDUCT.md). Please read it before you make any contributions.
 
 If you need any help or want to talk about about a specific issue, you can always reach out to me from my mail:ege@permify.co.
 
@@ -24,7 +24,7 @@ You're always more than welcome to our other communication channels.
 
 ## Ways to contribute
 
-* **Contribute to codebase:** We're collaboratively working with our community to make Kivo the best it can be! You can develop new features, fix existing issues or make third-party integrations/packages.
+* **Contribute to codebase:** We're collaboratively working with our community to make Targe the best it can be! You can develop new features, fix existing issues or make third-party integrations/packages.
   
 ### Contribution Steps
 
@@ -60,7 +60,7 @@ In order to contribute and test in our codebase you need to have Go version 1.19
 ```go test -v ./...```
 
 ### Adding dependencies
-Kivo is not using anything other than the standard Go modules toolchain to manage dependencies.
+Targe is not using anything other than the standard Go modules toolchain to manage dependencies.
 
 ```go get github.com/org/newdependency@version```
 

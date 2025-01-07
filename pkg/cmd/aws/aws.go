@@ -3,7 +3,7 @@ package aws
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/Permify/kivo/internal/config"
+	"github.com/Permify/targe/internal/config"
 )
 
 // NewAwsCommand -

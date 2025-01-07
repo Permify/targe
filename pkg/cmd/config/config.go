@@ -9,14 +9,14 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/Permify/kivo/internal/config"
+	"github.com/Permify/targe/internal/config"
 )
 
 // NewConfigCommand - returns a new cobra command for config
 func NewConfigCommand() *cobra.Command {
 	command := &cobra.Command{
 		Use:   "config",
-		Short: "Manage kivo configuration",
+		Short: "Manage targe configuration",
 	}
 
 	// Add subcommands
@@ -48,7 +48,7 @@ func newConfigSetCommand() *cobra.Command {
 			viper.SetConfigType("toml")
 
 			// Add the path where the config file is located
-			configPath := os.ExpandEnv("$HOME/.kivo/")
+			configPath := os.ExpandEnv("$HOME/.targe/")
 			viper.AddConfigPath(configPath)
 
 			// Ensure the directory exists
@@ -106,7 +106,7 @@ func newConfigGetCommand() *cobra.Command {
 			viper.SetConfigType("toml")
 
 			// Add the path where the config file is located
-			configPath := os.ExpandEnv("$HOME/.kivo/")
+			configPath := os.ExpandEnv("$HOME/.targe/")
 			viper.AddConfigPath(configPath)
 
 			// Ensure the directory exists

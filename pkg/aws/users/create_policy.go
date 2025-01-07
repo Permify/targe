@@ -9,8 +9,8 @@ import (
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Permify/kivo/internal/ai"
-	"github.com/Permify/kivo/pkg/aws/models"
+	"github.com/Permify/targe/internal/ai"
+	"github.com/Permify/targe/pkg/aws/models"
 )
 
 type CreatePolicy struct {

@@ -1,6 +1,6 @@
 ---
 version: 2
-project_name: kivo
+project_name: targe
 universal_binaries:
   - replace: true
 builds:
@@ -16,7 +16,7 @@ builds:
       - darwin
     ldflags:
       - "-s -w"
-    main: ./cmd/kivo
+    main: ./cmd/targe
     mod_timestamp: "{{ .CommitTimestamp }}"
 brews:
   -
@@ -27,20 +27,20 @@ brews:
     description: ""
     download_strategy: CurlDownloadStrategy
     directory: Formula
-    homepage: "https://github.com/Permify/kivo"
+    homepage: "https://github.com/Permify/targe"
     license: "Apache-2.0"
     custom_block: |
-      head "https://github.com/Permify/kivo.git", :branch => "master"
+      head "https://github.com/Permify/targe.git", :branch => "master"
     install: |-
-        bin.install "kivo"
+        bin.install "targe"
     repository:
-      name: homebrew-tap-kivo
+      name: homebrew-tap-targe
       owner: Permify
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     commit_author:
       name: permify-bot
       email: hello@permify.co
-    url_template: "https://github.com/Permify/kivo/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    url_template: "https://github.com/Permify/targe/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
 nfpms:
   -
     description: ""
@@ -53,11 +53,11 @@ nfpms:
     maintainer: "permify <help@permify.co>"
     vendor: "permify inc."
 msi:
-  - id: kivo
-    name: "kivo-{{.MsiArch}}"
-    wxs: ./assets/windows/kivo.wxs
+  - id: targe
+    name: "targe-{{.MsiArch}}"
+    wxs: ./assets/windows/targe.wxs
     ids:
-      - kivo
+      - targe
     goamd64: v1
     extra_files:
       - ./assets/images/logo-iam-copilot-light.png
