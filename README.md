@@ -102,7 +102,14 @@ Finally, preview the access action.
    ```
    This should return information about your AWS account. If it fails, double-check the credentials file for accuracy.
 
-4. **Set the Default Region (Optional):**
+4. **Configure OpenAI API Key**
+   
+   Run the following command to configure your OpenAI API Key:
+   ```shell
+   targe config set openai_api_key [your_api_key]
+   ```
+
+5. **Set the Default Region (Optional):**
 
    If your tool requires a specific AWS region, you can set it in the `~/.aws/config` file:
    ```shell
