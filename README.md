@@ -66,7 +66,7 @@ In the next step, select the policy you want to attach. You can use "filters" in
 
 Finally, preview the access action.
 
-![preview-access-action](https://github.com/user-attachments/assets/fdb22101-9019-4f04-8126-449948c9d3c8)
+![preview-access-action](https://github.com/user-attachments/assets/d843bd92-db6d-4907-ab39-0344e4986da8)
 
 ## Installation Steps
 
