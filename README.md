@@ -37,7 +37,7 @@ Describe the access action you want to perform. For example, "give S3 read-only 
 
 Targe analyzes the request and generates the necessary access command using AI.
 
-![targe-ai-flow](https://github.com/user-attachments/assets/ab5ee72b-e5f5-40ec-9f4e-8cf8c91ddff6)
+![targe-ai-flow](https://github.com/user-attachments/assets/0a2ea874-b6b6-47ec-b792-1602137f23e7)
 
 ### Start an Access Flow Manually
 
@@ -54,19 +54,19 @@ We will use following command to start **user** flow: `~ % targe aws users`.
 
 The user access flow begins by listing the users in the system. Select the user to take action on.
 
-![select-user](https://github.com/user-attachments/assets/7746878b-3570-4e94-9de2-9d536258a55b)
+![select-user](https://github.com/user-attachments/assets/d99327e8-3c74-42b4-9615-2afe6f0bde0b)
 
 After selecting the user, choose the operation to perform. Let’s attach a policy to user Omer.
 
-![select-operation](https://github.com/user-attachments/assets/fbe696ae-1649-42c4-bacc-8115c9f9e1d4)
+![select-operation](https://github.com/user-attachments/assets/bfa67375-0cd1-4bcf-9d73-dcb1a7a88dc4)
 
 In the next step, select the policy you want to attach. You can use "filters" in each section to search what you need.
 
-![select-policy](https://github.com/user-attachments/assets/d40354fe-43e0-497a-b1b6-570e02ac25f7)
+![select-policy](https://github.com/user-attachments/assets/af918b77-7e45-4c43-9d4b-f8971b1ece47)
 
 Finally, preview the access action.
 
-![preview-access-action](https://github.com/user-attachments/assets/61835e34-5598-4e73-b96c-6f09819c1b45)
+![preview-access-action](https://github.com/user-attachments/assets/fdb22101-9019-4f04-8126-449948c9d3c8)
 
 ## Installation Steps
 
