@@ -1,7 +1,7 @@
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/Permify/targe/raw/master/assets/images/logo-iam-copilot-dark.png">
-    <img alt="Targe logo" src="https://github.com/Permify/targe/raw/master/assets/images/logo-iam-copilot-light.png" width="40%">
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/Permify/targe/raw/master/assets/images/logo-targe-dark.png">
+    <img alt="Targe logo" src="https://github.com/Permify/targe/raw/master/assets/images/logo-targe-light.png" width="40%">
   </picture>
 <h1 align="center">
    Targe - Open Source IAM Copilot
